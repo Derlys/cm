@@ -1,0 +1,24 @@
+{
+  "name": "@cm/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@cm/db": "workspace:*",
+    "@cm/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@cm/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
