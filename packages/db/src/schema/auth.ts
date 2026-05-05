@@ -7,6 +7,11 @@ export const user = sqliteTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: integer("email_verified", { mode: "boolean" }).default(false).notNull(),
   image: text("image"),
+  username: text("username").unique(),
+  avatarUrl: text("avatar_url"),
+  developer: integer("developer", { mode: "boolean" }).default(false).notNull(),
+  role: text("role", { enum: ["Admin", "User"] }).default("User").notNull(),
+  status: text("status", { enum: ["Active", "Created", "Inactive"] }).default("Created").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
     .notNull(),

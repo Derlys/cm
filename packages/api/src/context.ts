@@ -11,6 +11,9 @@ export async function createContext({ context }: CreateContextOptions) {
   });
   return {
     auth: null,
+    request: {
+      userAgent: context.req.header("user-agent") ?? "unknown",
+    },
     session,
   };
 }
