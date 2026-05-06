@@ -75,4 +75,7 @@ app.get("/", (c) => {
   return c.text("OK");
 });
 
-export default app;
+export default {
+  fetch: app.fetch.bind(app),
+  port: env.PORT,
+};

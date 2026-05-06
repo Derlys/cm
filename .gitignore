@@ -12,6 +12,8 @@ build
 .env
 .env*.local
 local.db
+*.db-shm
+*.db-wal
 
 # IDEs and editors
 .vscode/*

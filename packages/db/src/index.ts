@@ -6,6 +6,7 @@ import * as schema from "./schema";
 
 export function createDb() {
   const client = createClient({
+    authToken: env.DATABASE_AUTH_TOKEN,
     url: env.DATABASE_URL,
   });
 
