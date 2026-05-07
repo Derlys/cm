@@ -14,6 +14,7 @@ import { Label } from "@cm/ui/components/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { Route } from "next";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,7 +23,9 @@ import { orpc, queryClient } from "@/utils/orpc";
 
 const TOKENS = ["Sol", "Usdc", "Bonk"] as const;
 
-export default function Dashboard({ session }: { session: typeof authClient.$Infer.Session }) {
+export default function Dashboard() {
+  const router = useRouter();
+  const session = authClient.useSession();
   const me = useQuery(orpc.users.me.queryOptions());
   const posts = useQuery(orpc.posts.listAuthored.queryOptions({ input: { limit: 50, page: 1 } }));
   const [title, setTitle] = useState("");
@@ -90,13 +93,32 @@ export default function Dashboard({ session }: { session: typeof authClient.$Inf
 
   const profile = me.data;
 
+  if (session.isPending) {
+    return (
+      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
+        <p className="text-sm text-muted-foreground">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  if (!session.data?.user) {
+    router.replace("/login");
+    return null;
+  }
+
+  const user = session.data.user;
+
   return (
-    <div className="grid gap-6">
+    <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
+      <div className="border-b pb-5">
+        <h1 className="text-2xl font-semibold tracking-normal">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Welcome {user.name}</p>
+      </div>
       <section className="grid gap-3 md:grid-cols-[1fr_1fr]">
         <Card>
           <CardHeader>
             <CardTitle>Profile</CardTitle>
-            <CardDescription>{session.user.email}</CardDescription>
+            <CardDescription>{user.email}</CardDescription>
           </CardHeader>
           <CardContent>
             <form
@@ -104,7 +126,7 @@ export default function Dashboard({ session }: { session: typeof authClient.$Inf
               onSubmit={(event) => {
                 event.preventDefault();
                 updateProfile.mutate({
-                  name: session.user.name,
+                  name: user.name,
                   username: username || profile?.username || undefined,
                 });
               }}
