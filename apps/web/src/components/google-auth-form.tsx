@@ -2,7 +2,7 @@
 
 import { Button } from "@cm/ui/components/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
@@ -14,12 +14,17 @@ export default function GoogleAuthForm() {
   const { data: session, isPending } = authClient.useSession();
   const [isSigningIn, setIsSigningIn] = useState(false);
 
+  useEffect(() => {
+    if (session?.user) {
+      router.replace("/");
+    }
+  }, [router, session?.user]);
+
   if (isPending) {
     return <Loader />;
   }
 
   if (session?.user) {
-    router.replace("/dashboard");
     return null;
   }
 
@@ -27,7 +32,7 @@ export default function GoogleAuthForm() {
     setIsSigningIn(true);
     await authClient.signIn.social(
       {
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}/`,
         provider: "google",
       },
       {
@@ -40,9 +45,12 @@ export default function GoogleAuthForm() {
   };
 
   return (
-    <div className="mx-auto mt-10 grid w-full max-w-md gap-6 p-6">
+    <div className="mx-auto mt-10 grid w-full max-w-md gap-6 rounded-lg border border-white/10 bg-card/80 p-6">
       <div className="grid gap-2 text-center">
-        <h1 className="text-3xl font-bold">Welcome to Connectamind</h1>
+        <div className="mx-auto flex size-12 items-center justify-center rounded-xl border border-[#ff9f1c]/40 bg-[#ff9f1c]/10 text-xl font-black text-[#ff9f1c]">
+          CM
+        </div>
+        <h1 className="text-3xl font-black">Welcome to Connectamind</h1>
         <p className="text-sm text-muted-foreground">Continue with your Google account.</p>
       </div>
       <Button type="button" className="w-full" disabled={isSigningIn} onClick={signInWithGoogle}>

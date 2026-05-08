@@ -1,7 +1,7 @@
 import { db } from "@cm/db";
-import { payment, post, price } from "@cm/db/schema/index";
+import { identity, payment, post, price } from "@cm/db/schema/index";
 import { ORPCError } from "@orpc/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { toPublicUser, type PublicUser } from "./users";
 import {
@@ -100,8 +100,10 @@ export async function listAuthoredPosts(userId: string, input: PageInput) {
 
 export async function listPublishedPosts(userId: string, input: PageInput & { username?: string }) {
   const posts = await loadPostsForUser(userId);
+  const verifiedSolanaOwners = await loadVerifiedSolanaOwnerIds();
   const filtered = posts
-    .filter((item) => item.prices.length > 0)
+    .filter((item) => item.prices.some((postPrice) => postPrice.token === "Sol"))
+    .filter((item) => verifiedSolanaOwners.has(item.authorId))
     .filter((item) => !input.username || item.author?.username === input.username)
     .filter((item) => matchesSearch(input.search, [item.id, item.title, item.content]));
 
@@ -164,6 +166,14 @@ async function loadPostsForUser(userId: string): Promise<PostRecord[]> {
       },
     },
   });
+}
+
+async function loadVerifiedSolanaOwnerIds() {
+  const verifiedIdentities = await db.query.identity.findMany({
+    where: and(eq(identity.provider, "Solana"), eq(identity.verified, true)),
+  });
+
+  return new Set(verifiedIdentities.map((item) => item.ownerId));
 }
 
 function mapPagedPosts(posts: PostRecord[], userId: string, input: PageInput) {
