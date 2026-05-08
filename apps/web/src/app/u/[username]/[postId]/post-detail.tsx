@@ -13,10 +13,12 @@ import { toast } from "sonner";
 
 import WalletActionPanel from "@/components/wallet-action-panel";
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
 import { SOLANA_NETWORK_LABEL, solToLamports } from "@/lib/solana-payments";
 import { orpc, queryClient } from "@/utils/orpc";
 
 export default function PostDetail({ postId, username }: { postId: string; username: string }) {
+  const { locale } = useI18n();
   const session = authClient.useSession();
   const wallet = useWallet();
   const { connection } = useConnection();
@@ -162,8 +164,8 @@ export default function PostDetail({ postId, username }: { postId: string; usern
 
         {!session.data?.user ? (
           <section className="rounded-lg border border-white/10 bg-card/80 p-6">
-            <p className="font-mono text-xs uppercase text-[#ff9f1c]">Reader account</p>
-            <h1 className="mt-2 text-3xl font-black tracking-normal">Sign in to read</h1>
+            <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Tu cuenta" : "Your account"}</p>
+            <h1 className="mt-2 text-3xl font-black tracking-normal">{locale === "es" ? "Inicia sesion para leer" : "Sign in to read"}</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
               Use Google to read, connect a wallet, and unlock posts on {SOLANA_NETWORK_LABEL}.
             </p>
@@ -185,7 +187,9 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                   <Link href={`/u/${post.data.author?.username ?? username}` as Route} className="font-medium text-foreground">
                     @{post.data.author?.username ?? username}
                   </Link>
-                  <StatusBadge tone={isUnlocked ? "success" : "muted"}>{isUnlocked ? "Unlocked" : "Locked"}</StatusBadge>
+                  <StatusBadge tone={isUnlocked ? "success" : "muted"}>
+                    {isUnlocked ? (locale === "es" ? "Comprada" : "Unlocked") : locale === "es" ? "De pago" : "Premium"}
+                  </StatusBadge>
                   <span>{formatPrices(post.data.prices)}</span>
                   <span className="rounded-full border border-[#ff9f1c]/30 bg-[#ff9f1c]/10 px-2 py-0.5 font-mono text-[11px] uppercase text-[#ffb24a]">
                     {SOLANA_NETWORK_LABEL}
@@ -209,8 +213,8 @@ export default function PostDetail({ postId, username }: { postId: string; usern
 
             {!isUnlocked ? (
               <aside className="h-fit rounded-lg border border-white/10 bg-card/90 p-5 lg:sticky lg:top-20">
-                <p className="font-mono text-xs uppercase text-[#ff9f1c]">Wallet payment</p>
-                <h2 className="mt-2 text-xl font-black tracking-normal">Unlock with SOL</h2>
+                <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Pago seguro" : "Secure payment"}</p>
+                <h2 className="mt-2 text-xl font-black tracking-normal">{locale === "es" ? "Comprar acceso con SOL" : "Buy access with SOL"}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
                   Payments run on {SOLANA_NETWORK_LABEL}. The transaction signature is saved after confirmation.
                 </p>
@@ -239,6 +243,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                   </div>
 
                   <WalletPaymentSetup
+                    locale={locale}
                     canPay={canPay}
                     creatorWallet={creatorWallet}
                     hasSupportedBrowserWallet={hasSupportedBrowserWallet}
@@ -275,6 +280,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
 }
 
 function WalletPaymentSetup({
+  locale,
   canPay,
   creatorWallet,
   hasSupportedBrowserWallet,
@@ -289,6 +295,7 @@ function WalletPaymentSetup({
   selectedPrice,
   verifiedBuyerWallet,
 }: {
+  locale: "en" | "es";
   canPay: boolean;
   creatorWallet: string | null;
   hasSupportedBrowserWallet: boolean;
@@ -306,9 +313,9 @@ function WalletPaymentSetup({
   return (
     <div className="grid gap-3">
       <WalletActionPanel
-        actionLabel="Pay and unlock"
-        unavailableWalletLabel="Select another wallet"
-        connectedLabel="Buyer wallet"
+        actionLabel={locale === "es" ? "Comprar acceso" : "Buy access"}
+        unavailableWalletLabel={locale === "es" ? "Selecciona otra wallet" : "Select another wallet"}
+        connectedLabel={locale === "es" ? "Wallet compradora" : "Buyer wallet"}
         disabled={!canPay}
         isActionPending={isPaying}
         isVerifyingWallet={isVerifyingWallet}

@@ -22,12 +22,14 @@ import { toast } from "sonner";
 
 import WalletActionPanel from "@/components/wallet-action-panel";
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
 import { abbreviateAddress, SOLANA_NETWORK_LABEL } from "@/lib/solana-payments";
 import { orpc, queryClient } from "@/utils/orpc";
 
 const TOKENS = ["Sol"] as const;
 
 export default function CreatorStudio() {
+  const { locale } = useI18n();
   const router = useRouter();
   const session = authClient.useSession();
   const wallet = useWallet();
@@ -135,8 +137,12 @@ export default function CreatorStudio() {
     <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_left,rgba(255,159,28,0.1),transparent_34rem)]">
       <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
         <section className="rounded-lg border border-white/10 bg-card/70 p-5">
-          <p className="font-mono text-xs uppercase text-[#ff9f1c]">Creator Studio</p>
-          <h1 className="mt-2 text-4xl font-black tracking-normal">Create paid posts</h1>
+          <p className="font-mono text-xs uppercase text-[#ff9f1c]">
+            {locale === "es" ? "Panel de creador" : "Creator Studio"}
+          </p>
+          <h1 className="mt-2 text-4xl font-black tracking-normal">
+            {locale === "es" ? "Crea publicaciones de pago" : "Create paid posts"}
+          </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
             Set up a public profile and verified Solana wallet before publishing content. Posts are only published and
             purchasable after a SOL price and verified receiving wallet are ready on {SOLANA_NETWORK_LABEL}.
@@ -147,21 +153,21 @@ export default function CreatorStudio() {
         <aside className="grid content-start gap-3">
           <Card className="rounded-lg border border-white/10 bg-card/80">
             <CardHeader>
-              <CardTitle>Setup</CardTitle>
+              <CardTitle>{locale === "es" ? "Configuracion inicial" : "Setup"}</CardTitle>
               <CardDescription>{user.email}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 text-sm">
-                <SetupItem done label="Google account" value={user.name} />
+                <SetupItem done label={locale === "es" ? "Cuenta Google" : "Google account"} value={user.name} />
                 <SetupItem
                   done={hasUsername}
-                  label="Public username"
-                  value={profile?.profileUrl ?? "Required before publishing"}
+                  label={locale === "es" ? "Nombre publico" : "Public username"}
+                  value={profile?.profileUrl ?? (locale === "es" ? "Requerido para publicar" : "Required before publishing")}
                 />
                 <SetupItem
                   done={hasVerifiedWallet}
-                  label="Payment wallet"
-                  value={profile?.publicKey ? abbreviateAddress(profile.publicKey) : "Required before publishing"}
+                  label={locale === "es" ? "Wallet de cobro" : "Payment wallet"}
+                  value={profile?.publicKey ? abbreviateAddress(profile.publicKey) : (locale === "es" ? "Requerido para publicar" : "Required before publishing")}
                 />
               </div>
             </CardContent>
@@ -169,7 +175,7 @@ export default function CreatorStudio() {
 
           <Card className="rounded-lg border border-white/10 bg-card/80">
             <CardHeader>
-              <CardTitle>Public profile</CardTitle>
+              <CardTitle>{locale === "es" ? "Perfil publico" : "Public profile"}</CardTitle>
               <CardDescription>{hasUsername ? "Your creator URL is ready." : "Choose a handle."}</CardDescription>
             </CardHeader>
             <CardContent>
@@ -193,7 +199,7 @@ export default function CreatorStudio() {
                   />
                 </div>
                 <Button type="submit" disabled={updateProfile.isPending}>
-                  Save username
+                  {locale === "es" ? "Guardar nombre" : "Save username"}
                 </Button>
               </form>
             </CardContent>
@@ -201,7 +207,7 @@ export default function CreatorStudio() {
 
           <Card className="rounded-lg border border-white/10 bg-card/80">
             <CardHeader>
-              <CardTitle>Payment wallet</CardTitle>
+              <CardTitle>{locale === "es" ? "Wallet de cobro" : "Payment wallet"}</CardTitle>
               <CardDescription>
                 {hasVerifiedWallet ? `Verified on ${SOLANA_NETWORK_LABEL}: ${abbreviateAddress(profile.publicKey!)}` : "Connect a wallet to receive payments."}
               </CardDescription>
@@ -209,8 +215,8 @@ export default function CreatorStudio() {
             <CardContent>
               <div className="grid gap-3">
                 <WalletActionPanel
-                  actionLabel="Wallet ready"
-                  connectedLabel="Payment wallet"
+                  actionLabel={locale === "es" ? "Lista para vender" : "Ready to sell"}
+                  connectedLabel={locale === "es" ? "Wallet de cobro" : "Payment wallet"}
                   disabled
                   isVerifyingWallet={isVerifyingWallet}
                   onAction={() => undefined}
@@ -226,8 +232,8 @@ export default function CreatorStudio() {
           {canCreate ? (
             <Card className="rounded-lg border border-white/10 bg-card/80">
               <CardHeader>
-                <CardTitle>New post</CardTitle>
-                  <CardDescription>Add a SOL price to make the post published and purchasable.</CardDescription>
+                <CardTitle>{locale === "es" ? "Nueva publicacion" : "New post"}</CardTitle>
+                  <CardDescription>{locale === "es" ? "Agrega precio SOL para ponerla en vitrina." : "Add a SOL price to make the post published and purchasable."}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form
@@ -246,7 +252,7 @@ export default function CreatorStudio() {
                   />
                   <div>
                     <Button type="submit" disabled={!title || !content || createPost.isPending}>
-                      Create draft
+                      {locale === "es" ? "Crear borrador" : "Create draft"}
                     </Button>
                   </div>
                 </form>
@@ -271,7 +277,7 @@ export default function CreatorStudio() {
 
           <section className="grid gap-3">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-2xl font-black tracking-normal">My posts</h2>
+              <h2 className="text-2xl font-black tracking-normal">{locale === "es" ? "Mis publicaciones" : "My posts"}</h2>
               <Link className={buttonVariants({ size: "sm", variant: "outline" })} href="/">
                 View feed
               </Link>
@@ -285,7 +291,7 @@ export default function CreatorStudio() {
                 <CardHeader>
                   <CardTitle>{post.title}</CardTitle>
                   <CardDescription>
-                    <StatusBadge>{post.prices.length ? "Published" : "Draft"}</StatusBadge> · {post.id}
+                    <StatusBadge>{post.prices.length ? (locale === "es" ? "En vitrina" : "Live") : locale === "es" ? "Borrador" : "Draft"}</StatusBadge> · {post.id}
                   </CardDescription>
                   <CardAction>
                     <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
@@ -296,6 +302,7 @@ export default function CreatorStudio() {
                 <CardContent>
                   <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">{post.content}</p>
                   <PriceForm
+                    locale={locale}
                     onSubmit={(input) =>
                       createPrice.mutate({
                         ...input,
@@ -322,8 +329,10 @@ export default function CreatorStudio() {
 }
 
 function PriceForm({
+  locale,
   onSubmit,
 }: {
+  locale: "en" | "es";
   onSubmit: (input: { amount: string; token: (typeof TOKENS)[number] }) => void;
 }) {
   const [amount, setAmount] = useState("");
@@ -351,7 +360,7 @@ function PriceForm({
         ))}
       </select>
       <Button type="submit" variant="outline" disabled={!amount}>
-        Add price
+        {locale === "es" ? "Publicar precio" : "Set price"}
       </Button>
     </form>
   );

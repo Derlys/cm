@@ -2,12 +2,15 @@
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
 
 import { ModeToggle } from "./mode-toggle";
 import UserMenu from "./user-menu";
+import LanguageToggle from "./language-toggle";
 
 export default function Header() {
   const { data: session } = authClient.useSession();
+  const { t } = useI18n();
 
   return (
     <div className="sticky top-0 z-30 border-b border-white/10 bg-background/90 backdrop-blur">
@@ -18,20 +21,21 @@ export default function Header() {
             <span className="hidden font-black sm:inline">Connectamind</span>
           </Link>
           <Link href="/" className="px-3 py-2 text-foreground transition hover:text-[#ff9f1c]">
-            Feed
+            {t("nav.explore")}
           </Link>
           {session ? (
             <Link href="/library" className="px-3 py-2 text-muted-foreground transition hover:text-foreground">
-              Library
+              {t("nav.library")}
             </Link>
           ) : null}
           {session ? (
             <Link href="/creator" className="px-3 py-2 text-muted-foreground transition hover:text-foreground">
-              Create
+              {t("nav.create")}
             </Link>
           ) : null}
         </nav>
         <div className="flex items-center gap-2">
+          <LanguageToggle />
           <ModeToggle />
           <UserMenu />
         </div>

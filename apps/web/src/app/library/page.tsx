@@ -6,9 +6,11 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
 import { orpc } from "@/utils/orpc";
 
 export default function LibraryPage() {
+  const { locale, t } = useI18n();
   const session = authClient.useSession();
   const purchased = useQuery(
     orpc.posts.listPurchased.queryOptions({
@@ -21,46 +23,52 @@ export default function LibraryPage() {
     <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_right,rgba(255,159,28,0.1),transparent_32rem)]">
       <div className="mx-auto grid w-full max-w-5xl gap-5 px-4 py-6">
         <section className="rounded-lg border border-white/10 bg-card/70 p-5">
-          <p className="font-mono text-xs uppercase text-[#ff9f1c]">Library</p>
+          <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Mi biblioteca" : "Library"}</p>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h1 className="text-4xl font-black tracking-normal">Unlocked posts</h1>
+              <h1 className="text-4xl font-black tracking-normal">{locale === "es" ? "Publicaciones compradas" : "Unlocked posts"}</h1>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                Everything you have unlocked with your Solana wallet, ready to read again.
+                {locale === "es"
+                  ? "Todo lo que compraste con tu wallet de Solana, listo para leer de nuevo."
+                  : "Everything you have unlocked with your Solana wallet, ready to read again."}
               </p>
             </div>
             <Link className={buttonVariants({ variant: "outline" })} href="/">
-              Back to feed
+              {locale === "es" ? "Volver al marketplace" : "Back to feed"}
             </Link>
           </div>
         </section>
 
         {!session.data?.user ? (
           <section className="rounded-lg border border-white/10 bg-card/80 p-6">
-            <p className="font-mono text-xs uppercase text-[#ff9f1c]">Reader account</p>
-            <h2 className="mt-2 text-2xl font-black tracking-normal">Sign in to see your library</h2>
+            <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Tu cuenta" : "Your account"}</p>
+            <h2 className="mt-2 text-2xl font-black tracking-normal">{locale === "es" ? "Inicia sesion para ver tu biblioteca" : "Sign in to see your library"}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              Your unlocked posts are tied to your Google account.
+              {locale === "es"
+                ? "Tus publicaciones compradas estan vinculadas a tu cuenta de Google."
+                : "Your unlocked posts are tied to your Google account."}
             </p>
             <div className="mt-5">
               <Link className={buttonVariants()} href="/login">
-                Continue with Google
+                {t("common.continueWithGoogle")}
               </Link>
             </div>
           </section>
         ) : (
           <section className="grid gap-3">
-            {purchased.isLoading ? <p className="text-sm text-muted-foreground">Loading library...</p> : null}
+            {purchased.isLoading ? <p className="text-sm text-muted-foreground">{locale === "es" ? "Cargando biblioteca..." : "Loading library..."}</p> : null}
             {purchased.data?.data.length === 0 ? (
               <section className="rounded-lg border border-white/10 bg-card/80 p-6">
                 <p className="font-mono text-xs uppercase text-[#ff9f1c]">Nothing unlocked yet</p>
-                <h2 className="mt-2 text-2xl font-black tracking-normal">No unlocked posts yet</h2>
+                <h2 className="mt-2 text-2xl font-black tracking-normal">{locale === "es" ? "Aun no compraste publicaciones" : "No unlocked posts yet"}</h2>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                  Browse the feed, open a locked post, and pay with your Devnet wallet to add it here.
+                  {locale === "es"
+                    ? "Explora el marketplace, abre una publicacion premium y compra acceso para verla aqui."
+                    : "Browse the feed, open a locked post, and pay with your Devnet wallet to add it here."}
                 </p>
                 <div className="mt-5">
                   <Link className={buttonVariants()} href="/">
-                    Browse feed
+                    {locale === "es" ? "Explorar marketplace" : "Browse feed"}
                   </Link>
                 </div>
               </section>
@@ -77,7 +85,7 @@ export default function LibraryPage() {
                         {post.author?.username ? `@${post.author.username}` : "Unknown author"}
                       </Link>
                       <span className="rounded-full border border-[#ff9f1c]/30 bg-[#ff9f1c]/10 px-2 py-0.5 font-mono text-[11px] uppercase text-[#ffb24a]">
-                        Unlocked
+                        {locale === "es" ? "Comprada" : "Unlocked"}
                       </span>
                       <span>{formatPrices(post.prices)}</span>
                     </div>
@@ -87,7 +95,7 @@ export default function LibraryPage() {
                     <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{post.content}</p>
                   </div>
                   <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
-                    Read
+                    {t("common.read")}
                   </Link>
                 </div>
               </article>
