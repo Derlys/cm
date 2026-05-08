@@ -11,8 +11,9 @@ import {
 } from "@cm/ui/components/card";
 import { Input } from "@cm/ui/components/input";
 import { Label } from "@cm/ui/components/label";
+import { WalletReadyState } from "@solana/wallet-adapter-base";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import bs58 from "bs58";
 import type { Route } from "next";
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const router = useRouter();
   const session = authClient.useSession();
   const wallet = useWallet();
+  const walletModal = useWalletModal();
   const me = useQuery(orpc.users.me.queryOptions());
   const posts = useQuery(orpc.posts.listAuthored.queryOptions({ input: { limit: 50, page: 1 } }));
   const [title, setTitle] = useState("");
@@ -174,7 +176,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              <WalletMultiButton />
+              <WalletConnectionControl wallet={wallet} onSelectWallet={() => walletModal.setVisible(true)} />
               {wallet.publicKey ? (
                 <p className="break-all font-mono text-xs text-muted-foreground">{wallet.publicKey.toBase58()}</p>
               ) : null}
@@ -255,6 +257,49 @@ export default function Dashboard() {
           </Card>
         ))}
       </section>
+    </div>
+  );
+}
+
+function WalletConnectionControl({
+  onSelectWallet,
+  wallet,
+}: {
+  onSelectWallet: () => void;
+  wallet: ReturnType<typeof useWallet>;
+}) {
+  if (!wallet.wallet) {
+    return (
+      <Button type="button" variant="outline" onClick={onSelectWallet}>
+        Select wallet
+      </Button>
+    );
+  }
+
+  if (!wallet.connected) {
+    const canConnect =
+      wallet.wallet.readyState === WalletReadyState.Installed || wallet.wallet.readyState === WalletReadyState.Loadable;
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        <Button type="button" variant="outline" onClick={onSelectWallet}>
+          Change wallet
+        </Button>
+        <Button type="button" disabled={!canConnect || wallet.connecting} onClick={() => wallet.connect()}>
+          {wallet.connecting ? "Connecting..." : `Connect ${wallet.wallet.adapter.name}`}
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Button type="button" variant="outline" onClick={onSelectWallet}>
+        Change wallet
+      </Button>
+      <Button type="button" variant="outline" disabled={wallet.disconnecting} onClick={() => wallet.disconnect()}>
+        {wallet.disconnecting ? "Disconnecting..." : "Disconnect"}
+      </Button>
     </div>
   );
 }
