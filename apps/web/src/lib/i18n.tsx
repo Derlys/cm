@@ -3,10 +3,24 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 type Locale = "en" | "es";
+type MessageSchema = {
+  common: {
+    continueWithGoogle: string;
+    loading: string;
+    noPrice: string;
+    read: string;
+    signIn: string;
+  };
+  nav: {
+    create: string;
+    explore: string;
+    library: string;
+  };
+};
 
 const STORAGE_KEY = "cm_locale";
 
-const messages = {
+const messages: Record<Locale, MessageSchema> = {
   en: {
     nav: {
       create: "Creator Studio",
@@ -35,9 +49,9 @@ const messages = {
       signIn: "Iniciar sesion",
     },
   },
-} as const;
+};
 
-type MessageTree = (typeof messages)["en"];
+type MessageTree = MessageSchema;
 type MessageKey = NestedKeyOf<MessageTree>;
 
 type I18nContextValue = {
@@ -108,4 +122,3 @@ function resolveMessage(tree: MessageTree, key: MessageKey) {
 
   return value;
 }
-
