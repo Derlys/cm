@@ -6,6 +6,13 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 
 export function createAuth() {
   const db = createDb();
+  const googleCredentials =
+    env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+      ? {
+          clientId: env.GOOGLE_CLIENT_ID,
+          clientSecret: env.GOOGLE_CLIENT_SECRET,
+        }
+      : undefined;
 
   return betterAuth({
     database: drizzleAdapter(db, {
@@ -19,6 +26,9 @@ export function createAuth() {
     },
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    socialProviders: {
+      ...(googleCredentials ? { google: googleCredentials } : {}),
+    },
     advanced: {
       defaultCookieAttributes: {
         sameSite: "none",

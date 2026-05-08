@@ -17,6 +17,10 @@ export async function linkSolanaIdentity(userId: string, providerId: string) {
   });
 
   if (existing) {
+    if (existing.ownerId === userId) {
+      return existing;
+    }
+
     throw new ORPCError("CONFLICT", { message: "Identity already linked." });
   }
 
