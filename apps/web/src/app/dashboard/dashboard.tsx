@@ -11,7 +11,10 @@ import {
 } from "@cm/ui/components/card";
 import { Input } from "@cm/ui/components/input";
 import { Label } from "@cm/ui/components/label";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import bs58 from "bs58";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -26,14 +29,13 @@ const TOKENS = ["Sol", "Usdc", "Bonk"] as const;
 export default function Dashboard() {
   const router = useRouter();
   const session = authClient.useSession();
+  const wallet = useWallet();
   const me = useQuery(orpc.users.me.queryOptions());
   const posts = useQuery(orpc.posts.listAuthored.queryOptions({ input: { limit: 50, page: 1 } }));
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [username, setUsername] = useState("");
-  const [publicKey, setPublicKey] = useState("");
-  const [challenge, setChallenge] = useState("");
-  const [signature, setSignature] = useState("");
+  const [isVerifyingWallet, setIsVerifyingWallet] = useState(false);
 
   const refreshDomain = async () => {
     await queryClient.invalidateQueries();
@@ -65,31 +67,42 @@ export default function Dashboard() {
       },
     }),
   );
-  const linkIdentity = useMutation(
-    orpc.identities.linkSolana.mutationOptions({
-      onSuccess: async () => {
-        toast.success("Wallet linked");
-        await refreshDomain();
-      },
-    }),
-  );
-  const requestChallenge = useMutation(
-    orpc.identities.requestChallenge.mutationOptions({
-      onSuccess: (result) => {
-        setChallenge(result.challenge);
-        toast.success("Challenge created");
-      },
-    }),
-  );
-  const verifyChallenge = useMutation(
-    orpc.identities.verifyChallenge.mutationOptions({
-      onSuccess: async () => {
-        toast.success("Wallet verified");
-        setSignature("");
-        await refreshDomain();
-      },
-    }),
-  );
+  const linkIdentity = useMutation(orpc.identities.linkSolana.mutationOptions());
+  const requestChallenge = useMutation(orpc.identities.requestChallenge.mutationOptions());
+  const verifyChallenge = useMutation(orpc.identities.verifyChallenge.mutationOptions());
+
+  const verifyConnectedWallet = async () => {
+    const providerId = wallet.publicKey?.toBase58();
+
+    if (!providerId) {
+      toast.error("Connect a Solana wallet first.");
+      return;
+    }
+
+    if (!wallet.signMessage) {
+      toast.error("This wallet does not support message signing.");
+      return;
+    }
+
+    setIsVerifyingWallet(true);
+
+    try {
+      await linkIdentity.mutateAsync({ providerId });
+      const challenge = await requestChallenge.mutateAsync({ providerId });
+      const signatureBytes = await wallet.signMessage(new TextEncoder().encode(challenge.challenge));
+      await verifyChallenge.mutateAsync({
+        challenge: challenge.challenge,
+        providerId,
+        signature: bs58.encode(signatureBytes),
+      });
+      toast.success("Wallet verified");
+      await refreshDomain();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Wallet verification failed");
+    } finally {
+      setIsVerifyingWallet(false);
+    }
+  };
 
   const profile = me.data;
 
@@ -156,67 +169,23 @@ export default function Dashboard() {
           <CardHeader>
             <CardTitle>Solana identity</CardTitle>
             <CardDescription>
-              {profile?.publicKey ? `Verified: ${profile.publicKey}` : "Link a wallet and paste a signed challenge."}
+              {profile?.publicKey ? `Verified: ${profile.publicKey}` : "Connect a wallet and sign a challenge."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              <div className="grid gap-2">
-                <Label htmlFor="publicKey">Public key</Label>
-                <Input
-                  id="publicKey"
-                  value={publicKey}
-                  onChange={(event) => setPublicKey(event.target.value)}
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!publicKey || linkIdentity.isPending}
-                  onClick={() => linkIdentity.mutate({ providerId: publicKey })}
-                >
-                  Link
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled={!publicKey || requestChallenge.isPending}
-                  onClick={() => requestChallenge.mutate({ providerId: publicKey })}
-                >
-                  Challenge
-                </Button>
-              </div>
-              {challenge ? (
-                <div className="grid gap-2">
-                  <Label htmlFor="challenge">Challenge</Label>
-                  <textarea
-                    id="challenge"
-                    className="min-h-20 border bg-background p-2 font-mono text-xs"
-                    readOnly
-                    value={challenge}
-                  />
-                  <Label htmlFor="signature">Signature</Label>
-                  <Input
-                    id="signature"
-                    value={signature}
-                    onChange={(event) => setSignature(event.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    disabled={!signature || verifyChallenge.isPending}
-                    onClick={() =>
-                      verifyChallenge.mutate({
-                        challenge,
-                        providerId: publicKey,
-                        signature,
-                      })
-                    }
-                  >
-                    Verify
-                  </Button>
-                </div>
+              <WalletMultiButton />
+              {wallet.publicKey ? (
+                <p className="break-all font-mono text-xs text-muted-foreground">{wallet.publicKey.toBase58()}</p>
               ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!wallet.publicKey || isVerifyingWallet}
+                onClick={verifyConnectedWallet}
+              >
+                {isVerifyingWallet ? "Verifying..." : "Verify wallet"}
+              </Button>
             </div>
           </CardContent>
         </Card>
