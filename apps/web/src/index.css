@@ -67,6 +67,18 @@ h3 {
   color: #b96b00;
 }
 
+.cm-surface {
+  background: var(--cm-surface);
+  border-color: var(--cm-border);
+  color: var(--cm-text);
+}
+
+.cm-muted-surface {
+  background: var(--cm-surface-soft);
+  border-color: var(--cm-border);
+  color: var(--cm-text-muted);
+}
+
 .wallet-adapter-button {
   align-items: center;
   background-color: transparent;

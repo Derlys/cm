@@ -1,7 +1,7 @@
 import { db } from "@cm/db";
 import { identity, payment, post, price } from "@cm/db/schema/index";
 import { ORPCError } from "@orpc/server";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 
 import { toPublicUser, type PublicUser } from "./users";
 import {
@@ -85,8 +85,15 @@ export async function updatePost(
 export async function deletePost(userId: string, postId: string) {
   const found = await requirePost(postId);
   await requireCanManageResource(userId, found.authorId);
-  const deleted = await db.delete(post).where(eq(post.id, postId)).returning().get();
-  return !!deleted;
+  const archived = await db
+    .update(post)
+    .set({
+      archivedAt: new Date(),
+    })
+    .where(eq(post.id, postId))
+    .returning()
+    .get();
+  return !!archived;
 }
 
 export async function listAuthoredPosts(userId: string, input: PageInput) {
@@ -102,6 +109,7 @@ export async function listPublishedPosts(userId: string, input: PageInput & { us
   const posts = await loadPostsForUser(userId);
   const verifiedSolanaOwners = await loadVerifiedSolanaOwnerIds();
   const filtered = posts
+    .filter((item) => !item.archivedAt)
     .filter((item) => item.prices.some((postPrice) => postPrice.token === "Sol"))
     .filter((item) => verifiedSolanaOwners.has(item.authorId))
     .filter((item) => !input.username || item.author?.username === input.username)
@@ -138,6 +146,12 @@ export async function findPostById(userId: string, postId: string) {
     throw new ORPCError("NOT_FOUND", { message: "Post not found." });
   }
 
+  const isOwner = found.authorId === userId;
+  const hasPurchase = found.payments.length > 0;
+  if (found.archivedAt && !isOwner && !hasPurchase) {
+    throw new ORPCError("NOT_FOUND", { message: "Post not found." });
+  }
+
   return toPostView(found, userId);
 }
 
@@ -156,6 +170,7 @@ async function requirePost(postId: string) {
 async function loadPostsForUser(userId: string): Promise<PostRecord[]> {
   return db.query.post.findMany({
     orderBy: [desc(post.createdAt)],
+    where: isNull(post.archivedAt),
     with: {
       author: true,
       payments: {

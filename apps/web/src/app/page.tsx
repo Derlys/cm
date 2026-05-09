@@ -79,7 +79,7 @@ export default function Home() {
               {posts.data?.data.map((post) => (
                 <article
                   key={post.id}
-                  className="group rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#ff9f1c]/50"
+                  className="cm-surface group rounded-2xl border p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#ff9f1c]/50"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -196,7 +196,7 @@ function ReaderCard({
   title: string;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-card p-6">
+    <div className="cm-surface rounded-lg border p-6">
       <p className="font-mono text-xs uppercase text-[#ff9f1c]">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black tracking-normal">{title}</h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{description}</p>
@@ -211,7 +211,7 @@ function StatusBadge({ children, tone }: { children: React.ReactNode; tone: "mut
       className={
         tone === "success"
           ? "rounded-full border border-[#ff9f1c]/30 bg-[#ff9f1c]/10 px-2 py-0.5 font-mono text-[11px] uppercase text-[#ffb24a]"
-          : "rounded-full border border-border bg-muted px-2 py-0.5 font-mono text-[11px] uppercase text-muted-foreground"
+          : "rounded-full border border-border px-2 py-0.5 font-mono text-[11px] uppercase text-muted-foreground"
       }
     >
       {children}

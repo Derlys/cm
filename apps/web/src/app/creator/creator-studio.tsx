@@ -74,6 +74,17 @@ export default function CreatorStudio() {
       },
     }),
   );
+  const deletePostMutation = useMutation(
+    orpc.posts.delete.mutationOptions({
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : "No se pudo eliminar la publicacion.");
+      },
+      onSuccess: async () => {
+        toast.success(locale === "es" ? "Publicacion eliminada." : "Post deleted.");
+        await refreshDomain();
+      },
+    }),
+  );
   const linkIdentity = useMutation(orpc.identities.linkSolana.mutationOptions());
   const requestChallenge = useMutation(orpc.identities.requestChallenge.mutationOptions());
   const verifyChallenge = useMutation(orpc.identities.verifyChallenge.mutationOptions());
@@ -320,12 +331,16 @@ export default function CreatorStudio() {
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-2xl font-black tracking-normal">{locale === "es" ? "Mis publicaciones" : "My posts"}</h2>
               <Link className={buttonVariants({ size: "sm", variant: "outline" })} href="/">
-                View feed
+                {locale === "es" ? "Ver marketplace" : "View marketplace"}
               </Link>
             </div>
-            {posts.isLoading ? <p className="text-sm text-muted-foreground">Loading posts...</p> : null}
+            {posts.isLoading ? (
+              <p className="text-sm text-muted-foreground">{locale === "es" ? "Cargando publicaciones..." : "Loading listings..."}</p>
+            ) : null}
             {posts.data?.data.length === 0 ? (
-              <p className="rounded-lg border border-white/10 bg-card/80 p-6 text-sm text-muted-foreground">No posts yet.</p>
+              <p className="rounded-lg border border-white/10 bg-card/80 p-6 text-sm text-muted-foreground">
+                {locale === "es" ? "Aun no tienes publicaciones." : "You do not have listings yet."}
+              </p>
             ) : null}
             {posts.data?.data.map((post) => (
               <Card key={post.id} className="rounded-lg border border-white/10 bg-card/80 transition hover:border-[#ff9f1c]/40">
@@ -335,9 +350,21 @@ export default function CreatorStudio() {
                     <StatusBadge>{post.prices.length ? (locale === "es" ? "En vitrina" : "Live") : locale === "es" ? "Borrador" : "Draft"}</StatusBadge> · {post.id}
                   </CardDescription>
                   <CardAction>
-                    <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
-                      Open
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                        {locale === "es" ? "Abrir" : "Open"}
+                      </Link>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={deletePostMutation.isPending}
+                        onClick={() => {
+                          deletePostMutation.mutate({ postId: post.id });
+                        }}
+                      >
+                        {locale === "es" ? "Retirar" : "Archive"}
+                      </Button>
+                    </div>
                   </CardAction>
                 </CardHeader>
                 <CardContent>

@@ -14,6 +14,7 @@ export const post = sqliteTable(
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
+    archivedAt: integer("archived_at", { mode: "timestamp_ms" }),
     title: text("title").notNull(),
     content: text("content").notNull(),
     authorId: text("author_id")
