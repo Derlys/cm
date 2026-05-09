@@ -20,9 +20,9 @@ export default function LibraryPage() {
   );
 
   return (
-    <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_right,rgba(255,159,28,0.1),transparent_32rem)]">
-      <div className="mx-auto grid w-full max-w-5xl gap-5 px-4 py-6">
-        <section className="rounded-lg border border-white/10 bg-card/70 p-5">
+    <main className="min-h-[calc(100svh-57px)]">
+      <div className="cm-shell grid w-full max-w-5xl gap-6">
+        <section className="cm-hero p-6">
           <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Mi biblioteca" : "Library"}</p>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -40,7 +40,7 @@ export default function LibraryPage() {
         </section>
 
         {!session.data?.user ? (
-          <section className="rounded-lg border border-white/10 bg-card/80 p-6">
+          <section className="cm-card p-6">
             <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Tu cuenta" : "Your account"}</p>
             <h2 className="mt-2 text-2xl font-black tracking-normal">{locale === "es" ? "Inicia sesion para ver tu biblioteca" : "Sign in to see your library"}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
@@ -58,9 +58,9 @@ export default function LibraryPage() {
           <section className="grid gap-3">
             {purchased.isLoading ? <p className="text-sm text-muted-foreground">{locale === "es" ? "Cargando biblioteca..." : "Loading library..."}</p> : null}
             {purchased.data?.data.length === 0 ? (
-              <section className="rounded-lg border border-white/10 bg-card/80 p-6">
-                <p className="font-mono text-xs uppercase text-[#ff9f1c]">Nothing unlocked yet</p>
-                <h2 className="mt-2 text-2xl font-black tracking-normal">{locale === "es" ? "Aun no compraste publicaciones" : "No unlocked posts yet"}</h2>
+              <section className="cm-card p-6">
+                <p className="font-mono text-xs uppercase text-[#ff9f1c]">{t("library.nothingUnlockedEyebrow")}</p>
+                <h2 className="mt-2 text-2xl font-black tracking-normal">{t("library.nothingUnlockedTitle")}</h2>
                 <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
                   {locale === "es"
                     ? "Explora el marketplace, abre una publicacion premium y compra acceso para verla aqui."
@@ -74,7 +74,7 @@ export default function LibraryPage() {
               </section>
             ) : null}
             {purchased.data?.data.map((post) => (
-              <article key={post.id} className="rounded-lg border border-white/10 bg-card/80 p-5">
+              <article key={post.id} className="cm-card p-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">

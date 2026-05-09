@@ -46,8 +46,11 @@ export default function CreatorStudio() {
 
   const updateProfile = useMutation(
     orpc.users.updateMe.mutationOptions({
+      onError: (error) => {
+        toast.error(error instanceof Error ? error.message : "No se pudo guardar el nombre.");
+      },
       onSuccess: async () => {
-        toast.success("Profile updated");
+        toast.success(locale === "es" ? "Nombre guardado." : "Username saved.");
         setUsername("");
         await refreshDomain();
       },
@@ -133,40 +136,59 @@ export default function CreatorStudio() {
 
   const user = session.data.user;
 
+  const normalizedUsername = normalizeUsername(username);
+  const isUsernameDirty = username.trim().length > 0;
+
   return (
-    <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_left,rgba(255,159,28,0.1),transparent_34rem)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6">
-        <section className="rounded-lg border border-white/10 bg-card/70 p-5">
+    <main className="min-h-[calc(100svh-57px)]">
+      <div className="cm-shell grid w-full gap-6">
+        <section className="cm-hero p-5">
           <p className="font-mono text-xs uppercase text-[#ff9f1c]">
             {locale === "es" ? "Panel de creador" : "Creator Studio"}
           </p>
-          <h1 className="mt-2 text-4xl font-black tracking-normal">
-            {locale === "es" ? "Crea publicaciones de pago" : "Create paid posts"}
+          <h1 className="mt-2 text-3xl font-black tracking-normal">
+            {locale === "es" ? "Publica y vende en minutos" : "Publish and sell in minutes"}
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Set up a public profile and verified Solana wallet before publishing content. Posts are only published and
-            purchasable after a SOL price and verified receiving wallet are ready on {SOLANA_NETWORK_LABEL}.
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">
+            {locale === "es"
+              ? `Activa tu perfil, conecta wallet y publica con precio SOL.`
+              : `Set your profile, connect wallet, and publish with a SOL price.`}
           </p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <MetaItem label={locale === "es" ? "Cuenta" : "Account"} value={user.email} />
+            <MetaItem
+              label={locale === "es" ? "Wallet" : "Wallet"}
+              value={hasVerifiedWallet ? abbreviateAddress(profile.publicKey!) : locale === "es" ? "Falta configurar" : "Setup required"}
+            />
+            <MetaItem
+              label={locale === "es" ? "Estado de venta" : "Sell status"}
+              value={hasUsername && hasVerifiedWallet ? (locale === "es" ? "Lista para vender" : "Ready to sell") : locale === "es" ? "Falta configurar" : "Setup required"}
+            />
+          </div>
         </section>
 
-      <section className="grid gap-3 lg:grid-cols-[320px_1fr]">
+      <section className="grid gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
         <aside className="grid content-start gap-3">
           <Card className="rounded-lg border border-white/10 bg-card/80">
             <CardHeader>
               <CardTitle>{locale === "es" ? "Configuracion inicial" : "Setup"}</CardTitle>
-              <CardDescription>{user.email}</CardDescription>
+              <CardDescription>{locale === "es" ? "Checklist de lanzamiento" : "Launch checklist"}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 text-sm">
-                <SetupItem done label={locale === "es" ? "Cuenta Google" : "Google account"} value={user.name} />
+                <SetupItem doneLabel={locale === "es" ? "Listo" : "Ready"} pendingLabel={locale === "es" ? "Pendiente" : "Pending"} done label={locale === "es" ? "Tu cuenta" : "Your account"} value={user.name} />
                 <SetupItem
+                  doneLabel={locale === "es" ? "Listo" : "Ready"}
+                  pendingLabel={locale === "es" ? "Pendiente" : "Pending"}
                   done={hasUsername}
-                  label={locale === "es" ? "Nombre publico" : "Public username"}
+                  label={locale === "es" ? "Tu perfil visible" : "Your public profile"}
                   value={profile?.profileUrl ?? (locale === "es" ? "Requerido para publicar" : "Required before publishing")}
                 />
                 <SetupItem
+                  doneLabel={locale === "es" ? "Listo" : "Ready"}
+                  pendingLabel={locale === "es" ? "Pendiente" : "Pending"}
                   done={hasVerifiedWallet}
-                  label={locale === "es" ? "Wallet de cobro" : "Payment wallet"}
+                  label={locale === "es" ? "Donde recibes pagos" : "Where you receive payments"}
                   value={profile?.publicKey ? abbreviateAddress(profile.publicKey) : (locale === "es" ? "Requerido para publicar" : "Required before publishing")}
                 />
               </div>
@@ -175,8 +197,16 @@ export default function CreatorStudio() {
 
           <Card className="rounded-lg border border-white/10 bg-card/80">
             <CardHeader>
-              <CardTitle>{locale === "es" ? "Perfil publico" : "Public profile"}</CardTitle>
-              <CardDescription>{hasUsername ? "Your creator URL is ready." : "Choose a handle."}</CardDescription>
+              <CardTitle>{locale === "es" ? "Tu perfil publico" : "Your public profile"}</CardTitle>
+              <CardDescription>
+                {hasUsername
+                  ? locale === "es"
+                    ? "Este nombre sera tu enlace publico para que te encuentren."
+                    : "This name becomes your public profile link."
+                  : locale === "es"
+                    ? "Elige un nombre simple (minusculas, numeros y guiones)."
+                    : "Choose a simple name (lowercase, numbers, and hyphens)."}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form
@@ -185,20 +215,27 @@ export default function CreatorStudio() {
                   event.preventDefault();
                   updateProfile.mutate({
                     name: user.name,
-                    username: username || profile?.username || undefined,
+                    username: normalizedUsername || profile?.username || undefined,
                   });
                 }}
               >
                 <div className="grid gap-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username">{locale === "es" ? "Nombre publico" : "Username"}</Label>
                   <Input
                     id="username"
-                    placeholder={profile?.username ?? "your-name"}
+                    placeholder={profile?.username ?? "tu-nombre"}
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                   />
+                  {isUsernameDirty && normalizedUsername !== username ? (
+                    <p className="text-xs text-muted-foreground">
+                      {locale === "es"
+                        ? `Se guardara como: ${normalizedUsername || "(vacio)"}.`
+                        : `Will be saved as: ${normalizedUsername || "(empty)"}.`}
+                    </p>
+                  ) : null}
                 </div>
-                <Button type="submit" disabled={updateProfile.isPending}>
+                <Button type="submit" disabled={updateProfile.isPending || (isUsernameDirty && normalizedUsername.length < 2)}>
                   {locale === "es" ? "Guardar nombre" : "Save username"}
                 </Button>
               </form>
@@ -209,7 +246,11 @@ export default function CreatorStudio() {
             <CardHeader>
               <CardTitle>{locale === "es" ? "Wallet de cobro" : "Payment wallet"}</CardTitle>
               <CardDescription>
-                {hasVerifiedWallet ? `Verified on ${SOLANA_NETWORK_LABEL}: ${abbreviateAddress(profile.publicKey!)}` : "Connect a wallet to receive payments."}
+                {hasVerifiedWallet
+                  ? `${locale === "es" ? "Lista para cobrar en" : "Ready to receive on"} ${SOLANA_NETWORK_LABEL}: ${abbreviateAddress(profile.publicKey!)}`
+                  : locale === "es"
+                    ? "Conecta una wallet para recibir pagos."
+                    : "Connect a wallet to receive payments."}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -233,7 +274,7 @@ export default function CreatorStudio() {
             <Card className="rounded-lg border border-white/10 bg-card/80">
               <CardHeader>
                 <CardTitle>{locale === "es" ? "Nueva publicacion" : "New post"}</CardTitle>
-                  <CardDescription>{locale === "es" ? "Agrega precio SOL para ponerla en vitrina." : "Add a SOL price to make the post published and purchasable."}</CardDescription>
+                  <CardDescription>{locale === "es" ? "Crea el contenido y luego define precio SOL." : "Create content first, then set a SOL price."}</CardDescription>
               </CardHeader>
               <CardContent>
                 <form
@@ -251,7 +292,7 @@ export default function CreatorStudio() {
                     onChange={(event) => setContent(event.target.value)}
                   />
                   <div>
-                    <Button type="submit" disabled={!title || !content || createPost.isPending}>
+                    <Button type="submit" size="lg" disabled={!title || !content || createPost.isPending}>
                       {locale === "es" ? "Crear borrador" : "Create draft"}
                     </Button>
                   </div>
@@ -261,7 +302,7 @@ export default function CreatorStudio() {
           ) : (
             <Card className="rounded-lg border border-white/10 bg-card/80">
               <CardHeader>
-                <CardTitle>Finish setup to create posts</CardTitle>
+                <CardTitle>{locale === "es" ? "Completa tu configuracion para publicar" : "Finish setup to publish"}</CardTitle>
                 <CardDescription>
                   Creators need a public username and verified wallet before publishing paid content on {SOLANA_NETWORK_LABEL}.
                 </CardDescription>
@@ -366,18 +407,50 @@ function PriceForm({
   );
 }
 
-function SetupItem({ done, label, value }: { done: boolean; label: string; value: string }) {
+function SetupItem({
+  done,
+  doneLabel,
+  label,
+  pendingLabel,
+  value,
+}: {
+  done: boolean;
+  doneLabel: string;
+  label: string;
+  pendingLabel: string;
+  value: string;
+}) {
   return (
     <div className="flex items-start justify-between gap-3 border-b pb-3 last:border-b-0 last:pb-0">
       <div>
         <p className="font-medium">{label}</p>
         <p className="break-all text-xs text-muted-foreground">{value}</p>
       </div>
-      <StatusBadge>{done ? "Ready" : "Todo"}</StatusBadge>
+      <StatusBadge>{done ? doneLabel : pendingLabel}</StatusBadge>
+    </div>
+  );
+}
+
+function MetaItem({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="rounded-md border border-white/10 bg-card/60 px-3 py-2">
+      <p className="font-mono text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-1 truncate text-sm text-foreground">{value || "-"}</p>
     </div>
   );
 }
 
 function StatusBadge({ children }: { children: React.ReactNode }) {
   return <span className="rounded-full border border-[#ff9f1c]/30 bg-[#ff9f1c]/10 px-2 py-1 font-mono text-[11px] uppercase text-[#ffb24a]">{children}</span>;
+}
+
+function normalizeUsername(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/--+/g, "-");
 }

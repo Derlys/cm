@@ -20,22 +20,18 @@ export default function Home() {
   );
 
   return (
-    <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_left,rgba(255,159,28,0.1),transparent_34rem)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[240px_minmax(0,1fr)]">
+    <main className="min-h-[calc(100svh-57px)]">
+      <div className="cm-shell grid w-full gap-7 lg:grid-cols-[250px_minmax(0,1fr)_320px]">
         <FeedSidebar isSignedIn={!!session.data?.user} locale={locale} userName={session.data?.user.name ?? null} />
 
         <section className="grid content-start gap-4">
-          <div className="rounded-lg border border-white/10 bg-card/70 p-5 shadow-sm">
+          <div className="cm-hero p-7">
             <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Marketplace" : "Marketplace"}</p>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h1 className="text-4xl font-black tracking-normal">
-                  {locale === "es" ? "Marketplace de publicaciones" : "Listing marketplace"}
-                </h1>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-                  {locale === "es"
-                    ? "Descubre creadores, compra acceso con tu wallet y guarda tus compras en biblioteca."
-                    : "Discover creators, buy access with your wallet, and keep purchases in your library."}
+                <h1 className="text-5xl font-black tracking-tight sm:text-6xl">{t("marketing.heroTitle")}</h1>
+                <p className="mt-3 max-w-3xl text-lg leading-8 text-muted-foreground">
+                  {t("marketing.heroSubtitle")}
                 </p>
               </div>
               {!session.data?.user ? (
@@ -83,7 +79,7 @@ export default function Home() {
               {posts.data?.data.map((post) => (
                 <article
                   key={post.id}
-                  className="group rounded-lg border border-white/10 bg-card/80 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-[#ff9f1c]/50 hover:bg-card"
+                  className="group rounded-2xl border border-border bg-card p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#ff9f1c]/50"
                 >
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0">
@@ -106,11 +102,11 @@ export default function Home() {
                         <span>{formatPrices(post.prices)}</span>
                       </div>
                       <Link href={post.postUrl as Route} className="block">
-                        <h2 className="text-2xl font-black tracking-normal transition group-hover:text-[#ffb24a]">
-                          {post.title}
-                        </h2>
-                      </Link>
-                      <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                      <h2 className="text-3xl font-black tracking-tight transition group-hover:text-[#ff9f1c]">
+                        {post.title}
+                      </h2>
+                    </Link>
+                    <p className="mt-3 line-clamp-3 text-base leading-7 text-muted-foreground">
                         {post.content ??
                           (locale === "es"
                             ? "Compra requerida para ver la publicacion completa."
@@ -126,6 +122,25 @@ export default function Home() {
             </section>
           )}
         </section>
+        <aside className="hidden lg:block">
+          <section className="cm-card">
+            <header className="border-b border-border px-6 py-5">
+              <h2 className="text-3xl font-black tracking-tight">{locale === "es" ? "Conversaciones activas" : "Active discussions"}</h2>
+            </header>
+            <div className="divide-y divide-border">
+              {[
+                locale === "es" ? "Como elegir una buena automatizacion AI" : "How to choose a reliable AI workflow",
+                locale === "es" ? "Que monetiza mejor: acceso unico o suscripcion" : "What sells better: single access or subscription",
+                locale === "es" ? "Errores comunes al vender contenido premium" : "Common mistakes selling premium content",
+              ].map((item) => (
+                <article key={item} className="px-6 py-5">
+                  <p className="text-lg leading-8 text-foreground">{item}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{locale === "es" ? "Comunidad" : "Community"}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        </aside>
       </div>
     </main>
   );
@@ -134,32 +149,32 @@ export default function Home() {
 function FeedSidebar({ isSignedIn, locale, userName }: { isSignedIn: boolean; locale: "en" | "es"; userName: string | null }) {
   return (
     <aside className="hidden content-start gap-3 lg:grid">
-      <div className="rounded-lg border border-white/10 bg-card/70 p-4">
+      <div className="cm-card p-5">
         <h2 className="text-xl font-black tracking-normal">Connectamind</h2>
         <p className="mt-2 text-sm leading-6 text-muted-foreground">
           {locale === "es" ? "Publicaciones premium de creadores independientes." : "Premium creator listings."}
         </p>
       </div>
-      <nav className="grid gap-1 rounded-lg border border-white/10 bg-card/70 p-2 text-sm">
-        <Link className="rounded-md px-3 py-2 text-foreground hover:bg-white/5" href="/">
+      <nav className="cm-card grid gap-1 p-3 text-sm">
+        <Link className="rounded-md px-3 py-2 text-foreground hover:bg-muted" href="/">
           {locale === "es" ? "Marketplace" : "Marketplace"}
         </Link>
         {isSignedIn ? (
-          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground" href="/library">
+          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground" href="/library">
             {locale === "es" ? "Mi biblioteca" : "Library"}
           </Link>
         ) : null}
         {isSignedIn ? (
-          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground" href="/creator">
+          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground" href="/creator">
             {locale === "es" ? "Panel de creador" : "Creator Studio"}
           </Link>
         ) : (
-          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-white/5 hover:text-foreground" href="/login">
+          <Link className="rounded-md px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground" href="/login">
             {locale === "es" ? "Iniciar sesion" : "Sign in"}
           </Link>
         )}
       </nav>
-      <div className="rounded-lg border border-white/10 bg-card/70 p-4 text-sm">
+      <div className="cm-card p-4 text-sm">
         <p className="font-medium">{isSignedIn ? (locale === "es" ? "Activa" : "Active") : locale === "es" ? "Primero explora" : "Explore first"}</p>
         <p className="mt-1 text-muted-foreground">
           {isSignedIn ? userName : locale === "es" ? "Compra primero, crea despues." : "Buy first, create later."}
@@ -181,7 +196,7 @@ function ReaderCard({
   title: string;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-card/80 p-6">
+    <div className="rounded-lg border border-border bg-card p-6">
       <p className="font-mono text-xs uppercase text-[#ff9f1c]">{eyebrow}</p>
       <h2 className="mt-2 text-2xl font-black tracking-normal">{title}</h2>
       <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">{description}</p>
@@ -196,7 +211,7 @@ function StatusBadge({ children, tone }: { children: React.ReactNode; tone: "mut
       className={
         tone === "success"
           ? "rounded-full border border-[#ff9f1c]/30 bg-[#ff9f1c]/10 px-2 py-0.5 font-mono text-[11px] uppercase text-[#ffb24a]"
-          : "rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] uppercase text-muted-foreground"
+          : "rounded-full border border-border bg-muted px-2 py-0.5 font-mono text-[11px] uppercase text-muted-foreground"
       }
     >
       {children}

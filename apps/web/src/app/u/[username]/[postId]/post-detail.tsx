@@ -154,8 +154,8 @@ export default function PostDetail({ postId, username }: { postId: string; usern
   };
 
   return (
-    <main className="min-h-[calc(100svh-57px)] bg-[radial-gradient(circle_at_top_right,rgba(255,159,28,0.1),transparent_32rem)]">
-      <div className="mx-auto grid w-full max-w-5xl gap-5 px-4 py-6">
+    <main className="min-h-[calc(100svh-57px)]">
+      <div className="cm-shell grid w-full max-w-5xl gap-6">
         <div>
           <Link className={buttonVariants({ size: "sm", variant: "ghost" })} href={`/u/${username}` as Route}>
             Back to @{username}
@@ -167,7 +167,9 @@ export default function PostDetail({ postId, username }: { postId: string; usern
             <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Tu cuenta" : "Your account"}</p>
             <h1 className="mt-2 text-3xl font-black tracking-normal">{locale === "es" ? "Inicia sesion para leer" : "Sign in to read"}</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-              Use Google to read, connect a wallet, and unlock posts on {SOLANA_NETWORK_LABEL}.
+              {locale === "es"
+                ? `Entra con Google para comprar acceso y leer publicaciones premium en ${SOLANA_NETWORK_LABEL}.`
+                : `Sign in with Google to buy access and read premium listings on ${SOLANA_NETWORK_LABEL}.`}
             </p>
             <div className="mt-5">
               <Link className={buttonVariants()} href="/login">
@@ -181,7 +183,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
 
         {post.data ? (
           <div className={isUnlocked ? "grid gap-5" : "grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]"}>
-            <article className="rounded-lg border border-white/10 bg-card/80">
+            <article className="cm-card">
               <header className="border-b border-white/10 p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                   <Link href={`/u/${post.data.author?.username ?? username}` as Route} className="font-medium text-foreground">
@@ -205,18 +207,22 @@ export default function PostDetail({ postId, username }: { postId: string; usern
               ) : (
                 <div className="p-6">
                   <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                    This post is locked. Connect and verify your wallet, then pay the creator on {SOLANA_NETWORK_LABEL}.
+                    {locale === "es"
+                      ? `Esta publicacion es premium. Conecta y verifica tu wallet para comprar acceso en ${SOLANA_NETWORK_LABEL}.`
+                      : `This listing is premium. Connect and verify your wallet to buy access on ${SOLANA_NETWORK_LABEL}.`}
                   </p>
                 </div>
               )}
             </article>
 
             {!isUnlocked ? (
-              <aside className="h-fit rounded-lg border border-white/10 bg-card/90 p-5 lg:sticky lg:top-20">
+              <aside className="cm-card h-fit p-5 lg:sticky lg:top-20">
                 <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Pago seguro" : "Secure payment"}</p>
                 <h2 className="mt-2 text-xl font-black tracking-normal">{locale === "es" ? "Comprar acceso con SOL" : "Buy access with SOL"}</h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Payments run on {SOLANA_NETWORK_LABEL}. The transaction signature is saved after confirmation.
+                  {locale === "es"
+                    ? `Pago seguro en ${SOLANA_NETWORK_LABEL}. Guardamos el comprobante al confirmar.`
+                    : `Secure payment on ${SOLANA_NETWORK_LABEL}. We save your proof after confirmation.`}
                 </p>
 
                 <div className="mt-5 grid gap-3">

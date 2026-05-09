@@ -11,6 +11,21 @@ type MessageSchema = {
     read: string;
     signIn: string;
   };
+  marketing: {
+    heroTitle: string;
+    heroSubtitle: string;
+  };
+  library: {
+    nothingUnlockedEyebrow: string;
+    nothingUnlockedTitle: string;
+  };
+  creator: {
+    yourAccount: string;
+    yourPublicProfile: string;
+    receivingWallet: string;
+    ready: string;
+    pending: string;
+  };
   nav: {
     create: string;
     explore: string;
@@ -22,6 +37,21 @@ const STORAGE_KEY = "cm_locale";
 
 const messages: Record<Locale, MessageSchema> = {
   en: {
+    marketing: {
+      heroTitle: "Connectamind: think, connect, and create",
+      heroSubtitle: "Discover creators, unlock premium ideas, and turn your knowledge into income.",
+    },
+    library: {
+      nothingUnlockedEyebrow: "Nothing unlocked yet",
+      nothingUnlockedTitle: "No unlocked posts yet",
+    },
+    creator: {
+      yourAccount: "Your account",
+      yourPublicProfile: "Your public profile",
+      receivingWallet: "Where you receive payments",
+      ready: "Ready",
+      pending: "Pending",
+    },
     nav: {
       create: "Creator Studio",
       explore: "Marketplace",
@@ -36,6 +66,21 @@ const messages: Record<Locale, MessageSchema> = {
     },
   },
   es: {
+    marketing: {
+      heroTitle: "Connectamind: piensa, conecta y crea",
+      heroSubtitle: "Descubre creadores, desbloquea ideas premium y convierte tu conocimiento en ingresos.",
+    },
+    library: {
+      nothingUnlockedEyebrow: "Sin compras aun",
+      nothingUnlockedTitle: "Aun no compraste publicaciones",
+    },
+    creator: {
+      yourAccount: "Tu cuenta",
+      yourPublicProfile: "Tu perfil visible",
+      receivingWallet: "Donde recibes pagos",
+      ready: "Listo",
+      pending: "Pendiente",
+    },
     nav: {
       create: "Panel de creador",
       explore: "Marketplace",
