@@ -41,6 +41,8 @@ bun run db:local
 bun run db:push
 ```
 
+If you changed the schema (for example adding `archived_at`) and your API starts failing with `no such column`, run `bun run db:push` again for the current environment.
+
 Then, run the development server:
 
 ```bash
@@ -49,6 +51,25 @@ bun run dev
 
 Open [http://localhost:3001](http://localhost:3001) in your browser to see the web application.
 The API is running at [http://localhost:3000](http://localhost:3000).
+
+## Production Auth (Render)
+
+For cross-domain auth (`cm-web` -> `cm-api`) configure these server variables in `cm-api`:
+
+- `BETTER_AUTH_URL=https://<your-api>.onrender.com`
+- `CORS_ORIGIN=https://<your-web>.onrender.com`
+- `TRUSTED_ORIGINS=https://<your-web>.onrender.com,https://<your-api>.onrender.com`
+- `GOOGLE_CLIENT_ID=...`
+- `GOOGLE_CLIENT_SECRET=...`
+- `BETTER_AUTH_SECRET=...`
+
+And in `cm-web`:
+
+- `NEXT_PUBLIC_SERVER_URL=https://<your-api>.onrender.com`
+
+Google OAuth redirect URI must match exactly:
+
+- `https://<your-api>.onrender.com/api/auth/callback/google`
 
 ## UI Customization
 
