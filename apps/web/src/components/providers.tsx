@@ -20,7 +20,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
             <ReactQueryDevtools />
           </QueryClientProvider>
         </SolanaWalletProvider>
-        <Toaster richColors />
+        <Toaster />
       </ThemeProvider>
     </I18nProvider>
   );

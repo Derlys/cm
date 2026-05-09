@@ -1,7 +1,7 @@
 import { db } from "@cm/db";
 import { identity, payment, post, price } from "@cm/db/schema/index";
 import { ORPCError } from "@orpc/server";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { toPublicUser, type PublicUser } from "./users";
 import {
@@ -100,6 +100,7 @@ export async function listAuthoredPosts(userId: string, input: PageInput) {
   const posts = await loadPostsForUser(userId);
   const filtered = posts
     .filter((item) => item.authorId === userId)
+    .filter((item) => !item.archivedAt)
     .filter((item) => matchesSearch(input.search, [item.id, item.title, item.content]));
 
   return mapPagedPosts(filtered, userId, input);
@@ -170,7 +171,6 @@ async function requirePost(postId: string) {
 async function loadPostsForUser(userId: string): Promise<PostRecord[]> {
   return db.query.post.findMany({
     orderBy: [desc(post.createdAt)],
-    where: isNull(post.archivedAt),
     with: {
       author: true,
       payments: {
