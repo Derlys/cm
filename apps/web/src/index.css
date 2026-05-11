@@ -42,6 +42,22 @@ h3 {
   padding: 1.5rem 1.25rem 2rem;
 }
 
+.cm-home-shell {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 auto;
+  max-width: 1460px;
+  padding: 1.5rem 1rem 2rem;
+}
+
+@media (min-width: 1024px) {
+  .cm-home-shell {
+    grid-template-columns: 250px minmax(0, 1fr);
+    padding: 1.5rem 1.25rem 2rem;
+  }
+}
+
 .cm-hero {
   border: 1px solid var(--cm-border);
   border-radius: 16px;
@@ -77,6 +93,37 @@ h3 {
   background: var(--cm-surface-soft);
   border-color: var(--cm-border);
   color: var(--cm-text-muted);
+}
+
+.cm-responsive-action {
+  width: 100%;
+}
+
+.cm-responsive-actions {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.cm-responsive-actions > * {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .cm-responsive-action {
+    width: auto;
+  }
+
+  .cm-responsive-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    width: auto;
+  }
+
+  .cm-responsive-actions > * {
+    width: auto;
+  }
 }
 
 .wallet-adapter-button {

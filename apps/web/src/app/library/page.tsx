@@ -33,7 +33,7 @@ export default function LibraryPage() {
                   : "Everything you have unlocked with your Solana wallet, ready to read again."}
               </p>
             </div>
-            <Link className={buttonVariants({ variant: "outline" })} href="/">
+            <Link className={buttonVariants({ className: "cm-responsive-action", variant: "outline" })} href="/">
               {locale === "es" ? "Volver al marketplace" : "Back to feed"}
             </Link>
           </div>
@@ -49,7 +49,7 @@ export default function LibraryPage() {
                 : "Your unlocked posts are tied to your Google account."}
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants()} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
                 {t("common.continueWithGoogle")}
               </Link>
             </div>
@@ -67,7 +67,7 @@ export default function LibraryPage() {
                     : "Browse the feed, open a locked post, and pay with your Devnet wallet to add it here."}
                 </p>
                 <div className="mt-5">
-                  <Link className={buttonVariants()} href="/">
+                  <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/">
                     {locale === "es" ? "Explorar marketplace" : "Browse feed"}
                   </Link>
                 </div>
@@ -94,7 +94,7 @@ export default function LibraryPage() {
                     </Link>
                     <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{post.content}</p>
                   </div>
-                  <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={post.postUrl as Route}>
                     {t("common.read")}
                   </Link>
                 </div>

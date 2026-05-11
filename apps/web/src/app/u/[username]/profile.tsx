@@ -37,7 +37,7 @@ export default function Profile({ username }: { username: string }) {
               Published posts are available after Google sign in.
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants()} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
                 Continue with Google
               </Link>
             </div>
@@ -66,7 +66,7 @@ export default function Profile({ username }: { username: string }) {
                       {post.content ?? "Purchase required to read the full post."}
                     </p>
                   </div>
-                  <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={post.postUrl as Route}>
                     Read
                   </Link>
                 </div>

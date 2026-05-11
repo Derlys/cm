@@ -157,8 +157,8 @@ export default function PostDetail({ postId, username }: { postId: string; usern
     <main className="min-h-[calc(100svh-57px)]">
       <div className="cm-shell grid w-full max-w-5xl gap-6">
         <div>
-          <Link className={buttonVariants({ size: "sm", variant: "ghost" })} href={`/u/${username}` as Route}>
-            Back to @{username}
+          <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "ghost" })} href={`/u/${username}` as Route}>
+            {locale === "es" ? `Volver a @${username}` : `Back to @${username}`}
           </Link>
         </div>
 
@@ -172,7 +172,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                 : `Sign in with Google to buy access and read premium listings on ${SOLANA_NETWORK_LABEL}.`}
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants()} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
                 Continue with Google
               </Link>
             </div>
@@ -198,6 +198,13 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                   </span>
                 </div>
                 <h1 className="max-w-3xl text-4xl font-black tracking-normal sm:text-5xl">{post.data.title}</h1>
+                {isUnlocked ? (
+                  <div className="mt-5">
+                    <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href="/library">
+                      {locale === "es" ? "Ver en mi biblioteca" : "View in my library"}
+                    </Link>
+                  </div>
+                ) : null}
               </header>
 
               {isUnlocked ? (
