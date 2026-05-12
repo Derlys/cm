@@ -3,8 +3,7 @@
 import { buttonVariants } from "@cm/ui/components/button";
 import { Input } from "@cm/ui/components/input";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, ChartColumn, ChevronRight, Library, Search, Store } from "lucide-react";
-import type { Route } from "next";
+import { ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -28,11 +27,6 @@ export default function Home() {
   return (
     <main className="min-h-[calc(100svh-57px)] overflow-hidden">
       <div className="cm-home-shell">
-        <FeedSidebar
-          isSignedIn={signedIn}
-          locale={locale}
-        />
-
         <section className="grid min-w-0 content-start gap-5">
           <section className="cm-hero p-5 sm:p-7">
             <p className="font-mono text-xs font-semibold uppercase text-[#ff8a00]">Marketplace</p>
@@ -158,65 +152,6 @@ export default function Home() {
         </section>
       </div>
     </main>
-  );
-}
-
-function FeedSidebar({
-  isSignedIn,
-  locale,
-}: {
-  isSignedIn: boolean;
-  locale: "en" | "es";
-}) {
-  return (
-    <aside className="hidden content-start gap-5 lg:grid">
-      <nav className="cm-card grid gap-2 p-5 text-base">
-        <SidebarLink active href={localizePath(locale, "/")} icon={<Store className="size-5" />}>
-          Marketplace
-        </SidebarLink>
-        {isSignedIn ? (
-          <SidebarLink href={localizePath(locale, "/library")} icon={<BookOpen className="size-5" />}>
-            {locale === "es" ? "Mi biblioteca" : "Library"}
-          </SidebarLink>
-        ) : null}
-        {isSignedIn ? (
-          <SidebarLink href={localizePath(locale, "/creator")} icon={<ChartColumn className="size-5" />}>
-            {locale === "es" ? "Panel de creador" : "Creator Studio"}
-          </SidebarLink>
-        ) : (
-          <SidebarLink href={localizePath(locale, "/login")} icon={<Library className="size-5" />}>
-            {locale === "es" ? "Iniciar sesion" : "Sign in"}
-          </SidebarLink>
-        )}
-      </nav>
-
-    </aside>
-  );
-}
-
-function SidebarLink({
-  active,
-  children,
-  href,
-  icon,
-}: {
-  active?: boolean;
-  children: React.ReactNode;
-  href: Route | "/";
-  icon: React.ReactNode;
-}) {
-  return (
-    <Link
-      className={
-        active
-          ? "flex items-center gap-4 rounded-md px-3 py-3 font-bold text-[#ff7a00]"
-          : "flex items-center gap-4 rounded-md px-3 py-3 text-muted-foreground transition hover:bg-muted hover:text-foreground"
-      }
-      href={href}
-    >
-      {icon}
-      <span>{children}</span>
-    </Link>
   );
 }
 
