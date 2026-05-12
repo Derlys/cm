@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 
 import Loader from "./loader";
 
@@ -18,9 +19,9 @@ export default function GoogleAuthForm() {
 
   useEffect(() => {
     if (session?.user) {
-      router.replace("/");
+      router.replace(localizePath(locale, "/"));
     }
-  }, [router, session?.user]);
+  }, [locale, router, session?.user]);
 
   if (isPending) {
     return <Loader />;
@@ -34,7 +35,7 @@ export default function GoogleAuthForm() {
     setIsSigningIn(true);
     await authClient.signIn.social(
       {
-        callbackURL: `${window.location.origin}/`,
+        callbackURL: `${window.location.origin}${localizePath(locale, "/")}`,
         provider: "google",
       },
       {

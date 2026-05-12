@@ -16,19 +16,21 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import bs58 from "bs58";
-import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { orpc, queryClient } from "@/utils/orpc";
 
 const TOKENS = ["Sol", "Usdc", "Bonk"] as const;
 
 export default function Dashboard() {
   const router = useRouter();
+  const { locale } = useI18n();
   const session = authClient.useSession();
   const wallet = useWallet();
   const walletModal = useWalletModal();
@@ -117,7 +119,7 @@ export default function Dashboard() {
   }
 
   if (!session.data?.user) {
-    router.replace("/login");
+    router.replace(localizePath(locale, "/login"));
     return null;
   }
 
@@ -231,7 +233,7 @@ export default function Dashboard() {
                 {post.prices.length ? "Published" : "Draft"} · {post.id}
               </CardDescription>
               <CardAction>
-                <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={localizePath(locale, post.postUrl)}>
                   Open
                 </Link>
               </CardAction>

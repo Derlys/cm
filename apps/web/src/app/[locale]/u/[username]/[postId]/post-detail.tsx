@@ -6,7 +6,6 @@ import { WalletReadyState } from "@solana/wallet-adapter-base";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import bs58 from "bs58";
-import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,6 +13,7 @@ import { toast } from "sonner";
 import WalletActionPanel from "@/components/wallet-action-panel";
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { SOLANA_NETWORK_LABEL, solToLamports } from "@/lib/solana-payments";
 import { orpc, queryClient } from "@/utils/orpc";
 
@@ -156,7 +156,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
     <main className="min-h-[calc(100svh-57px)]">
       <div className="cm-shell grid w-full max-w-5xl gap-6">
         <div>
-          <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "ghost" })} href={`/u/${username}` as Route}>
+          <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "ghost" })} href={localizePath(locale, `/u/${username}`)}>
             {locale === "es" ? `Volver a @${username}` : `Back to @${username}`}
           </Link>
         </div>
@@ -171,7 +171,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                 : `Sign in with Google to buy access and read premium listings on ${SOLANA_NETWORK_LABEL}.`}
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href={localizePath(locale, "/login")}>
                 Continue with Google
               </Link>
             </div>
@@ -185,7 +185,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
             <article className="cm-card">
               <header className="border-b border-white/10 p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                  <Link href={`/u/${post.data.author?.username ?? username}` as Route} className="font-medium text-foreground">
+                  <Link href={localizePath(locale, `/u/${post.data.author?.username ?? username}`)} className="font-medium text-foreground">
                     @{post.data.author?.username ?? username}
                   </Link>
                   <StatusBadge tone={isUnlocked ? "success" : "muted"}>
@@ -199,7 +199,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                 <h1 className="max-w-3xl text-4xl font-black tracking-normal sm:text-5xl">{post.data.title}</h1>
                 {isUnlocked ? (
                   <div className="mt-5">
-                    <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href="/library">
+                    <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={localizePath(locale, "/library")}>
                       {locale === "es" ? "Ver en mi biblioteca" : "View in my library"}
                     </Link>
                   </div>
@@ -304,7 +304,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                     <span className="text-right font-mono text-foreground/80">{SOLANA_NETWORK_LABEL}</span>
                   </div>
                 </div>
-                <Link className={buttonVariants({ className: "cm-responsive-action mt-5 w-full" })} href="/login">
+                <Link className={buttonVariants({ className: "cm-responsive-action mt-5 w-full" })} href={localizePath(locale, "/login")}>
                   {locale === "es" ? "Iniciar sesion para comprar" : "Sign in to buy"}
                 </Link>
               </aside>

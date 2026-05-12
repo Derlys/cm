@@ -14,7 +14,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import bs58 from "bs58";
 import { ArrowRight, CheckCircle2, ExternalLink, FileText, Wallet } from "lucide-react";
-import type { Route } from "next";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,6 +22,7 @@ import { toast } from "sonner";
 import WalletActionPanel from "@/components/wallet-action-panel";
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { abbreviateAddress, SOLANA_NETWORK_LABEL } from "@/lib/solana-payments";
 import { orpc, queryClient } from "@/utils/orpc";
 
@@ -129,7 +129,7 @@ export default function CreatorStudio() {
 
   useEffect(() => {
     if (!session.isPending && !session.data?.user) {
-      router.replace("/login");
+      router.replace(localizePath(locale, "/login"));
     }
   }, [router, session.data?.user, session.isPending]);
 
@@ -332,7 +332,7 @@ export default function CreatorStudio() {
                     {locale === "es" ? `${postsCount} publicaciones en tu estudio.` : `${postsCount} posts in your studio.`}
                   </p>
                 </div>
-                <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href="/">
+                <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={localizePath(locale, "/")}>
                   {locale === "es" ? "Ver marketplace" : "View marketplace"}
                   <ExternalLink className="size-3.5" />
                 </Link>
@@ -378,7 +378,7 @@ export default function CreatorStudio() {
                         </CardDescription>
                       </div>
                       <div className="cm-responsive-actions sm:justify-end">
-                        <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                        <Link className={buttonVariants({ size: "sm", variant: "outline" })} href={localizePath(locale, post.postUrl)}>
                           {locale === "es" ? "Abrir" : "Open"}
                         </Link>
                         <Button

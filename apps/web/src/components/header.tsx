@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { abbreviateAddress, SOLANA_NETWORK_LABEL } from "@/lib/solana-payments";
 
 import { ModeToggle } from "./mode-toggle";
@@ -44,7 +45,7 @@ export default function Header() {
       fetchOptions: {
         onSuccess: () => {
           closeMenu();
-          router.push("/");
+          router.push(localizePath(locale, "/"));
         },
       },
     });
@@ -54,26 +55,26 @@ export default function Header() {
     <div className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex w-full max-w-[1460px] items-center justify-between gap-3 px-3 py-3 sm:px-4">
         <nav className="hidden items-center gap-1 text-sm font-medium md:flex">
-          <Link href="/" className="mr-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-foreground transition hover:bg-muted">
+          <Link href={localizePath(locale, "/")} className="mr-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-foreground transition hover:bg-muted">
             <img src="/connectamind-logo.png" alt="Connectamind" className="size-8 rounded-md" />
             <span className="font-black">Connectamind</span>
           </Link>
-          <Link href="/" className="whitespace-nowrap px-3 py-2 text-foreground transition hover:text-[#ff9f1c]">
+          <Link href={localizePath(locale, "/")} className="whitespace-nowrap px-3 py-2 text-foreground transition hover:text-[#ff9f1c]">
             {t("nav.explore")}
           </Link>
           {session ? (
-            <Link href="/library" className="whitespace-nowrap px-3 py-2 text-muted-foreground transition hover:text-foreground">
+            <Link href={localizePath(locale, "/library")} className="whitespace-nowrap px-3 py-2 text-muted-foreground transition hover:text-foreground">
               {t("nav.library")}
             </Link>
           ) : null}
           {session ? (
-            <Link href="/creator" className="whitespace-nowrap px-3 py-2 text-muted-foreground transition hover:text-foreground">
+            <Link href={localizePath(locale, "/creator")} className="whitespace-nowrap px-3 py-2 text-muted-foreground transition hover:text-foreground">
               {t("nav.create")}
             </Link>
           ) : null}
         </nav>
 
-        <Link href="/" className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 text-foreground transition hover:bg-muted md:hidden">
+        <Link href={localizePath(locale, "/")} className="flex min-w-0 items-center gap-2 rounded-md px-1 py-1 text-foreground transition hover:bg-muted md:hidden">
           <img src="/connectamind-logo.png" alt="Connectamind" className="size-8 shrink-0 rounded-md" />
           <span className="truncate font-black">Connectamind</span>
         </Link>
@@ -138,11 +139,11 @@ export default function Header() {
             ) : (
               <>
                 <nav className="grid gap-1 text-sm font-medium">
-                  <MobileNavLink href="/" onNavigate={closeMenu}>
+                  <MobileNavLink href={localizePath(locale, "/")} onNavigate={closeMenu}>
                     {t("nav.explore")}
                   </MobileNavLink>
                 </nav>
-                <MobileNavLink href="/login" onNavigate={closeMenu}>
+                <MobileNavLink href={localizePath(locale, "/login")} onNavigate={closeMenu}>
                   {t("common.signIn")}
                 </MobileNavLink>
               </>
@@ -229,13 +230,13 @@ function MobileUserPanel({
       </div>
 
       <nav className="grid gap-1 border-t border-border pt-3 text-sm font-medium">
-        <MobilePanelLink href="/" icon={<Store className="size-4" />} onNavigate={onNavigate}>
+        <MobilePanelLink href={localizePath(locale, "/")} icon={<Store className="size-4" />} onNavigate={onNavigate}>
           {exploreLabel}
         </MobilePanelLink>
-        <MobilePanelLink href="/library" icon={<BookOpen className="size-4" />} onNavigate={onNavigate}>
+        <MobilePanelLink href={localizePath(locale, "/library")} icon={<BookOpen className="size-4" />} onNavigate={onNavigate}>
           {libraryLabel}
         </MobilePanelLink>
-        <MobilePanelLink href="/creator" icon={<ChartColumn className="size-4" />} onNavigate={onNavigate}>
+        <MobilePanelLink href={localizePath(locale, "/creator")} icon={<ChartColumn className="size-4" />} onNavigate={onNavigate}>
           {creatorLabel}
         </MobilePanelLink>
       </nav>

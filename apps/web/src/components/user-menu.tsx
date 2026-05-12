@@ -13,9 +13,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 
 export default function UserMenu() {
   const router = useRouter();
+  const { locale, t } = useI18n();
   const { data: session, isPending } = authClient.useSession();
 
   if (isPending) {
@@ -24,8 +27,8 @@ export default function UserMenu() {
 
   if (!session) {
     return (
-      <Link href="/login">
-        <Button variant="outline">Sign In</Button>
+      <Link href={localizePath(locale, "/login")}>
+        <Button variant="outline">{t("common.signIn")}</Button>
       </Link>
     );
   }
@@ -46,7 +49,7 @@ export default function UserMenu() {
               authClient.signOut({
                 fetchOptions: {
                   onSuccess: () => {
-                    router.push("/");
+                    router.push(localizePath(locale, "/"));
                   },
                 },
               });

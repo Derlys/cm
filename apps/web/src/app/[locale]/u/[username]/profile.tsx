@@ -2,13 +2,15 @@
 
 import { buttonVariants } from "@cm/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { orpc } from "@/utils/orpc";
 
 export default function Profile({ username }: { username: string }) {
+  const { locale } = useI18n();
   const session = authClient.useSession();
   const user = useQuery(orpc.users.byUsername.queryOptions({ input: { username } }));
   const posts = useQuery(
@@ -37,7 +39,7 @@ export default function Profile({ username }: { username: string }) {
               Published posts are available after Google sign in.
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href={localizePath(locale, "/login")}>
                 Continue with Google
               </Link>
             </div>
@@ -59,14 +61,14 @@ export default function Profile({ username }: { username: string }) {
                       <StatusBadge tone={post.content ? "success" : "muted"}>{post.content ? "Unlocked" : "Locked"}</StatusBadge>
                       <span>{formatPrices(post.prices)}</span>
                     </div>
-                    <Link href={post.postUrl as Route} className="block">
+                    <Link href={localizePath(locale, post.postUrl)} className="block">
                       <h3 className="text-2xl font-black tracking-normal hover:text-[#ffb24a]">{post.title}</h3>
                     </Link>
                     <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">
                       {post.content ?? "Purchase required to read the full post."}
                     </p>
                   </div>
-                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={localizePath(locale, post.postUrl)}>
                     Read
                   </Link>
                 </div>

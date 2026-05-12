@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-type Locale = "en" | "es";
+import type { Locale } from "./locale-routing";
+
 type MessageSchema = {
   common: {
     continueWithGoogle: string;
@@ -32,8 +33,6 @@ type MessageSchema = {
     library: string;
   };
 };
-
-const STORAGE_KEY = "cm_locale";
 
 const messages: Record<Locale, MessageSchema> = {
   en: {
@@ -107,19 +106,21 @@ type I18nContextValue = {
 
 const I18nContext = createContext<I18nContextValue | null>(null);
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>("en");
+export function I18nProvider({
+  children,
+  initialLocale,
+}: {
+  children: React.ReactNode;
+  initialLocale: Locale;
+}) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "es" || saved === "en") {
-      setLocaleState(saved);
-    }
-  }, []);
+    setLocaleState(initialLocale);
+  }, [initialLocale]);
 
   const setLocale = (nextLocale: Locale) => {
     setLocaleState(nextLocale);
-    window.localStorage.setItem(STORAGE_KEY, nextLocale);
   };
 
   const t = (key: MessageKey) => resolveMessage(messages[locale], key);

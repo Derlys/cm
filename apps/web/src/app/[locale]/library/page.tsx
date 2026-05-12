@@ -2,11 +2,11 @@
 
 import { buttonVariants } from "@cm/ui/components/button";
 import { useQuery } from "@tanstack/react-query";
-import type { Route } from "next";
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 import { orpc } from "@/utils/orpc";
 
 export default function LibraryPage() {
@@ -33,7 +33,7 @@ export default function LibraryPage() {
                   : "Everything you have unlocked with your Solana wallet, ready to read again."}
               </p>
             </div>
-            <Link className={buttonVariants({ className: "cm-responsive-action", variant: "outline" })} href="/">
+            <Link className={buttonVariants({ className: "cm-responsive-action", variant: "outline" })} href={localizePath(locale, "/")}>
               {locale === "es" ? "Volver al marketplace" : "Back to feed"}
             </Link>
           </div>
@@ -49,7 +49,7 @@ export default function LibraryPage() {
                 : "Your unlocked posts are tied to your Google account."}
             </p>
             <div className="mt-5">
-              <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/login">
+              <Link className={buttonVariants({ className: "cm-responsive-action" })} href={localizePath(locale, "/login")}>
                 {t("common.continueWithGoogle")}
               </Link>
             </div>
@@ -67,7 +67,7 @@ export default function LibraryPage() {
                     : "Browse the feed, open a locked post, and pay with your Devnet wallet to add it here."}
                 </p>
                 <div className="mt-5">
-                  <Link className={buttonVariants({ className: "cm-responsive-action" })} href="/">
+                  <Link className={buttonVariants({ className: "cm-responsive-action" })} href={localizePath(locale, "/")}>
                     {locale === "es" ? "Explorar marketplace" : "Browse feed"}
                   </Link>
                 </div>
@@ -79,7 +79,7 @@ export default function LibraryPage() {
                   <div className="min-w-0">
                     <div className="mb-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       <Link
-                        href={(post.author?.username ? `/u/${post.author.username}` : "/") as Route}
+                        href={localizePath(locale, post.author?.username ? `/u/${post.author.username}` : "/")}
                         className="font-medium text-foreground hover:text-[#ffb24a]"
                       >
                         {post.author?.username ? `@${post.author.username}` : "Unknown author"}
@@ -89,12 +89,12 @@ export default function LibraryPage() {
                       </span>
                       <span>{formatPrices(post.prices)}</span>
                     </div>
-                    <Link href={post.postUrl as Route} className="block">
+                    <Link href={localizePath(locale, post.postUrl)} className="block">
                       <h2 className="text-2xl font-black tracking-normal hover:text-[#ffb24a]">{post.title}</h2>
                     </Link>
                     <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">{post.content}</p>
                   </div>
-                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={post.postUrl as Route}>
+                  <Link className={buttonVariants({ className: "cm-responsive-action", size: "sm", variant: "outline" })} href={localizePath(locale, post.postUrl)}>
                     {t("common.read")}
                   </Link>
                 </div>

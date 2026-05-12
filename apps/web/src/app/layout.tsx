@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 
 import "../index.css";
 import Header from "@/components/header";
-import Providers from "@/components/providers";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/locale-routing";
 
 export const metadata: Metadata = {
   title: "cm",
   description: "cm",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieLocale = (await cookies()).get("cm_locale")?.value;
+  const locale = isLocale(cookieLocale) ? cookieLocale : DEFAULT_LOCALE;
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className="bg-background text-foreground antialiased">
-        <Providers>
-          <div className="grid min-h-svh grid-rows-[auto_1fr]">
-            <Header />
-            {children}
-          </div>
-        </Providers>
+        {children}
       </body>
     </html>
   );

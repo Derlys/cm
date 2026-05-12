@@ -7,11 +7,14 @@ import { toast } from "sonner";
 import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
+import { useI18n } from "@/lib/i18n";
+import { localizePath } from "@/lib/locale-routing";
 
 import Loader from "./loader";
 
 export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
   const router = useRouter();
+  const { locale } = useI18n();
   const { isPending } = authClient.useSession();
 
   const form = useForm({
@@ -27,7 +30,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         },
         {
           onSuccess: () => {
-            router.push("/dashboard");
+            router.push(localizePath(locale, "/dashboard"));
             toast.success("Sign in successful");
           },
           onError: (error) => {
