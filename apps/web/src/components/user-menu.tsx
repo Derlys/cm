@@ -2,22 +2,16 @@ import { Button } from "@cm/ui/components/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@cm/ui/components/dropdown-menu";
 import { Skeleton } from "@cm/ui/components/skeleton";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { authClient } from "@/lib/auth-client";
 import { useI18n } from "@/lib/i18n";
 import { localizePath } from "@/lib/locale-routing";
 
-export default function UserMenu() {
-  const router = useRouter();
+export default function UserMenu({ accountPanel }: { accountPanel?: React.ReactNode }) {
   const { locale, t } = useI18n();
   const { data: session, isPending } = authClient.useSession();
 
@@ -38,26 +32,8 @@ export default function UserMenu() {
       <DropdownMenuTrigger render={<Button variant="outline" />}>
         {session.user.name}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="bg-card">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem>{session.user.email}</DropdownMenuItem>
-          <DropdownMenuItem
-            variant="destructive"
-            onClick={() => {
-              authClient.signOut({
-                fetchOptions: {
-                  onSuccess: () => {
-                    router.push(localizePath(locale, "/"));
-                  },
-                },
-              });
-            }}
-          >
-            Sign Out
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
+      <DropdownMenuContent align="end" className="w-[22rem] overflow-visible rounded-lg border border-border bg-transparent p-0 shadow-2xl ring-0">
+        {accountPanel}
       </DropdownMenuContent>
     </DropdownMenu>
   );

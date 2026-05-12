@@ -2,28 +2,22 @@
 
 import { buttonVariants } from "@cm/ui/components/button";
 import { Input } from "@cm/ui/components/input";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen, ChartColumn, ChevronRight, Library, Search, Store, Wallet } from "lucide-react";
+import { BookOpen, ChartColumn, ChevronRight, Library, Search, Store } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 
 import { authClient } from "@/lib/auth-client";
 import { localizePath } from "@/lib/locale-routing";
-import { SOLANA_NETWORK_LABEL } from "@/lib/solana-payments";
 import { useI18n } from "@/lib/i18n";
 import { orpc } from "@/utils/orpc";
 
 export default function Home() {
   const { locale, t } = useI18n();
   const session = authClient.useSession();
-  const { connection } = useConnection();
-  const wallet = useWallet();
   const [search, setSearch] = useState("");
   const signedIn = !!session.data?.user;
-  const publicKey = wallet.publicKey;
   const normalizedSearch = search.trim();
 
   const posts = useQuery(
@@ -31,29 +25,12 @@ export default function Home() {
       input: { limit: 20, page: 1, search: normalizedSearch || undefined },
     }),
   );
-  const balance = useQuery({
-    enabled: signedIn && !!publicKey,
-    queryFn: async () => {
-      if (!publicKey) {
-        return 0;
-      }
-
-      return connection.getBalance(publicKey);
-    },
-    queryKey: ["wallet-balance", publicKey?.toBase58()],
-    refetchInterval: 30_000,
-  });
-
   return (
     <main className="min-h-[calc(100svh-57px)] overflow-hidden">
       <div className="cm-home-shell">
         <FeedSidebar
-          balanceLamports={balance.data}
-          balanceLoading={balance.isLoading}
           isSignedIn={signedIn}
           locale={locale}
-          userName={session.data?.user.name ?? null}
-          walletConnected={!!publicKey}
         />
 
         <section className="grid min-w-0 content-start gap-5">
@@ -185,19 +162,11 @@ export default function Home() {
 }
 
 function FeedSidebar({
-  balanceLamports,
-  balanceLoading,
   isSignedIn,
   locale,
-  userName,
-  walletConnected,
 }: {
-  balanceLamports?: number;
-  balanceLoading: boolean;
   isSignedIn: boolean;
   locale: "en" | "es";
-  userName: string | null;
-  walletConnected: boolean;
 }) {
   return (
     <aside className="hidden content-start gap-5 lg:grid">
@@ -221,75 +190,7 @@ function FeedSidebar({
         )}
       </nav>
 
-      {isSignedIn ? (
-        <>
-          <BalanceCard
-            balanceLamports={balanceLamports}
-            balanceLoading={balanceLoading}
-            locale={locale}
-            walletConnected={walletConnected}
-          />
-
-          <AccountSummaryCard locale={locale} userName={userName} />
-        </>
-      ) : null}
     </aside>
-  );
-}
-
-function BalanceCard({
-  balanceLamports,
-  balanceLoading,
-  locale,
-  walletConnected,
-}: {
-  balanceLamports?: number;
-  balanceLoading: boolean;
-  locale: "en" | "es";
-  walletConnected: boolean;
-}) {
-  const balanceSol = typeof balanceLamports === "number" ? balanceLamports / LAMPORTS_PER_SOL : null;
-
-  return (
-    <section className="cm-card overflow-hidden">
-      <div className="p-5">
-        <p className="text-sm font-semibold">{locale === "es" ? "Saldo disponible" : "Available balance"}</p>
-        <p className="mt-3 text-3xl font-black tracking-normal text-foreground">
-          {formatBalance(balanceSol, balanceLoading, walletConnected, locale)}
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {walletConnected
-            ? locale === "es"
-              ? "Balance real de wallet"
-              : "Live wallet balance"
-            : locale === "es"
-              ? "Conecta wallet para ver saldo"
-              : "Connect wallet to view balance"}
-          </p>
-      </div>
-      <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm">
-        <span className="inline-flex items-center gap-2 text-muted-foreground">
-          <Wallet className="size-5 text-[#22c55e]" />
-          {locale === "es" ? "Red:" : "Network:"} {SOLANA_NETWORK_LABEL.replace("Solana ", "")}
-        </span>
-        <span className="size-2 rounded-full bg-[#22c55e]" aria-label={locale === "es" ? "Red activa" : "Network active"} />
-      </div>
-    </section>
-  );
-}
-
-function AccountSummaryCard({
-  locale,
-  userName,
-}: {
-  locale: "en" | "es";
-  userName: string | null;
-}) {
-  return (
-    <section className="cm-muted-surface rounded-lg border p-4 text-sm">
-      <p className="font-semibold">{locale === "es" ? "Cuenta activa" : "Active account"}</p>
-      <p className="mt-1 text-muted-foreground">{userName}</p>
-    </section>
   );
 }
 
@@ -352,21 +253,6 @@ function StatusBadge({ children, tone }: { children: React.ReactNode; tone: "mut
       {children}
     </span>
   );
-}
-
-function formatBalance(balanceSol: number | null, loading: boolean, walletConnected: boolean, locale: "en" | "es") {
-  if (!walletConnected) {
-    return "0.00 SOL";
-  }
-
-  if (loading || balanceSol === null) {
-    return locale === "es" ? "Cargando..." : "Loading...";
-  }
-
-  return `${balanceSol.toLocaleString(locale === "es" ? "es-ES" : "en-US", {
-    maximumFractionDigits: 4,
-    minimumFractionDigits: 2,
-  })} SOL`;
 }
 
 function formatPrices(prices: Array<{ amount: string; token: string }>, locale: "en" | "es") {
