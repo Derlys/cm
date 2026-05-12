@@ -27,7 +27,6 @@ export default function Home() {
 
   const posts = useQuery(
     orpc.posts.listPublished.queryOptions({
-      enabled: signedIn,
       input: { limit: 20, page: 1, search: normalizedSearch || undefined },
     }),
   );
@@ -75,39 +74,22 @@ export default function Home() {
                 <Input
                   aria-label={locale === "es" ? "Buscar publicaciones" : "Search listings"}
                   className="h-12 rounded-lg border-[#dfe3ea] bg-background pl-11 text-sm shadow-sm"
-                  disabled={!signedIn}
                   placeholder={locale === "es" ? "Buscar publicaciones..." : "Search listings..."}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                 />
               </label>
               {!signedIn ? (
-                <div>
-                  <Link className={buttonVariants({ size: "lg" })} href="/login">
-                    {t("common.continueWithGoogle")}
-                  </Link>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  {locale === "es"
+                    ? "Explora primero. Inicia sesion al comprar."
+                    : "Explore first. Sign in when you buy."}
+                </p>
               ) : null}
             </div>
           </section>
 
-          {!signedIn ? (
-            <ReaderCard
-              title={locale === "es" ? "Inicia sesion para comenzar a explorar" : "Sign in to start reading"}
-              eyebrow={locale === "es" ? "Tu cuenta" : "Your account"}
-              description={
-                locale === "es"
-                  ? "Accede con Google para comprar acceso, guardar tu biblioteca y publicar cuando quieras."
-                  : "Sign in with Google to buy access, keep a library, and publish when ready."
-              }
-              action={
-                <Link className={buttonVariants()} href="/login">
-                  {t("common.continueWithGoogle")}
-                </Link>
-              }
-            />
-          ) : (
-            <section className="grid gap-3">
+          <section className="grid gap-3">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-xl font-black tracking-normal">
                   {locale === "es" ? "Publicaciones destacadas" : "Featured listings"}
@@ -195,16 +177,6 @@ export default function Home() {
                 </article>
               ))}
             </section>
-          )}
-
-          <MobileAccountSnapshot
-            balanceLamports={balance.data}
-            balanceLoading={balance.isLoading}
-            isSignedIn={signedIn}
-            locale={locale}
-            userName={session.data?.user.name ?? null}
-            walletConnected={!!publicKey}
-          />
         </section>
       </div>
     </main>
@@ -248,57 +220,30 @@ function FeedSidebar({
         )}
       </nav>
 
-      <BalanceCard
-        balanceLamports={balanceLamports}
-        balanceLoading={balanceLoading}
-        locale={locale}
-        walletConnected={walletConnected}
-      />
+      {isSignedIn ? (
+        <>
+          <BalanceCard
+            balanceLamports={balanceLamports}
+            balanceLoading={balanceLoading}
+            locale={locale}
+            walletConnected={walletConnected}
+          />
 
-      <AccountSummaryCard isSignedIn={isSignedIn} locale={locale} userName={userName} />
+          <AccountSummaryCard locale={locale} userName={userName} />
+        </>
+      ) : null}
     </aside>
-  );
-}
-
-function MobileAccountSnapshot({
-  balanceLamports,
-  balanceLoading,
-  isSignedIn,
-  locale,
-  userName,
-  walletConnected,
-}: {
-  balanceLamports?: number;
-  balanceLoading: boolean;
-  isSignedIn: boolean;
-  locale: "en" | "es";
-  userName: string | null;
-  walletConnected: boolean;
-}) {
-  return (
-    <section className="grid gap-3 lg:hidden sm:grid-cols-[minmax(0,1.3fr)_minmax(220px,0.7fr)]">
-      <BalanceCard
-        balanceLamports={balanceLamports}
-        balanceLoading={balanceLoading}
-        compact
-        locale={locale}
-        walletConnected={walletConnected}
-      />
-      <AccountSummaryCard compact isSignedIn={isSignedIn} locale={locale} userName={userName} />
-    </section>
   );
 }
 
 function BalanceCard({
   balanceLamports,
   balanceLoading,
-  compact,
   locale,
   walletConnected,
 }: {
   balanceLamports?: number;
   balanceLoading: boolean;
-  compact?: boolean;
   locale: "en" | "es";
   walletConnected: boolean;
 }) {
@@ -306,14 +251,12 @@ function BalanceCard({
 
   return (
     <section className="cm-card overflow-hidden">
-      <div className={compact ? "p-4" : "p-5"}>
-        <p className={compact ? "text-xs font-semibold" : "text-sm font-semibold"}>
-          {locale === "es" ? "Saldo disponible" : "Available balance"}
-        </p>
-        <p className={compact ? "mt-2 text-2xl font-black tracking-normal text-foreground" : "mt-3 text-3xl font-black tracking-normal text-foreground"}>
+      <div className="p-5">
+        <p className="text-sm font-semibold">{locale === "es" ? "Saldo disponible" : "Available balance"}</p>
+        <p className="mt-3 text-3xl font-black tracking-normal text-foreground">
           {formatBalance(balanceSol, balanceLoading, walletConnected, locale)}
         </p>
-        <p className={compact ? "mt-1 text-xs text-muted-foreground" : "mt-2 text-sm text-muted-foreground"}>
+        <p className="mt-2 text-sm text-muted-foreground">
           {walletConnected
             ? locale === "es"
               ? "Balance real de wallet"
@@ -321,22 +264,11 @@ function BalanceCard({
             : locale === "es"
               ? "Conecta wallet para ver saldo"
               : "Connect wallet to view balance"}
-        </p>
-        <Link
-          className={buttonVariants({
-            className: compact
-              ? "mt-4 h-9 w-full rounded-md bg-[#ff7a00] text-xs text-white hover:bg-[#f06d00]"
-              : "mt-5 h-11 w-full rounded-md bg-[#ff7a00] text-sm text-white hover:bg-[#f06d00]",
-            size: compact ? "default" : "lg",
-          })}
-          href="/creator"
-        >
-          {locale === "es" ? "Retirar fondos" : "Withdraw funds"}
-        </Link>
+          </p>
       </div>
-      <div className={compact ? "flex items-center justify-between gap-3 border-t border-border px-4 py-3 text-xs" : "flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm"}>
+      <div className="flex items-center justify-between gap-3 border-t border-border px-5 py-4 text-sm">
         <span className="inline-flex items-center gap-2 text-muted-foreground">
-          <Wallet className={compact ? "size-4 text-[#22c55e]" : "size-5 text-[#22c55e]"} />
+          <Wallet className="size-5 text-[#22c55e]" />
           {locale === "es" ? "Red:" : "Network:"} {SOLANA_NETWORK_LABEL.replace("Solana ", "")}
         </span>
         <span className="size-2 rounded-full bg-[#22c55e]" aria-label={locale === "es" ? "Red activa" : "Network active"} />
@@ -346,24 +278,16 @@ function BalanceCard({
 }
 
 function AccountSummaryCard({
-  compact,
-  isSignedIn,
   locale,
   userName,
 }: {
-  compact?: boolean;
-  isSignedIn: boolean;
   locale: "en" | "es";
   userName: string | null;
 }) {
   return (
-    <section className={compact ? "cm-muted-surface rounded-lg border p-3 text-xs" : "cm-muted-surface rounded-lg border p-4 text-sm"}>
-      <p className="font-semibold">
-        {isSignedIn ? (locale === "es" ? "Cuenta activa" : "Active account") : locale === "es" ? "Primero explora" : "Explore first"}
-      </p>
-      <p className="mt-1 text-muted-foreground">
-        {isSignedIn ? userName : locale === "es" ? "Compra primero, crea despues." : "Buy first, create later."}
-      </p>
+    <section className="cm-muted-surface rounded-lg border p-4 text-sm">
+      <p className="font-semibold">{locale === "es" ? "Cuenta activa" : "Active account"}</p>
+      <p className="mt-1 text-muted-foreground">{userName}</p>
     </section>
   );
 }

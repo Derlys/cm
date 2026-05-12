@@ -520,6 +520,11 @@ export default function CreatorStudio() {
                   onVerifyWallet={verifyConnectedWallet}
                   verifiedWallet={profile?.publicKey}
                 />
+                <p className="rounded-md border border-white/10 bg-background/60 p-3 text-xs text-muted-foreground">
+                  {locale === "es"
+                    ? "Los retiros estaran disponibles proximamente desde este panel."
+                    : "Withdrawals will be available from this panel soon."}
+                </p>
               </div>
             </CardContent>
           </Card>

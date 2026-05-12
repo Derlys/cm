@@ -106,8 +106,8 @@ export async function listAuthoredPosts(userId: string, input: PageInput) {
   return mapPagedPosts(filtered, userId, input);
 }
 
-export async function listPublishedPosts(userId: string, input: PageInput & { username?: string }) {
-  const posts = await loadPostsForUser(userId);
+export async function listPublishedPosts(userId: string | undefined, input: PageInput & { username?: string }) {
+  const posts = await loadPostsForViewer(userId);
   const verifiedSolanaOwners = await loadVerifiedSolanaOwnerIds();
   const filtered = posts
     .filter((item) => !item.archivedAt)
@@ -129,14 +129,18 @@ export async function listPurchasedPosts(userId: string, input: PageInput & { us
   return mapPagedPosts(filtered, userId, input);
 }
 
-export async function findPostById(userId: string, postId: string) {
+export async function findPostById(userId: string | undefined, postId: string) {
   const found = await db.query.post.findFirst({
     where: eq(post.id, postId),
     with: {
       author: true,
-      payments: {
-        where: eq(payment.ownerId, userId),
-      },
+      payments: userId
+        ? {
+            where: eq(payment.ownerId, userId),
+          }
+        : {
+            where: eq(payment.ownerId, "__public_viewer__"),
+          },
       prices: {
         orderBy: [price.token],
       },
@@ -147,13 +151,26 @@ export async function findPostById(userId: string, postId: string) {
     throw new ORPCError("NOT_FOUND", { message: "Post not found." });
   }
 
-  const isOwner = found.authorId === userId;
-  const hasPurchase = found.payments.length > 0;
+  const viewerPayments = userId ? found.payments : [];
+  const isOwner = !!userId && found.authorId === userId;
+  const hasPurchase = viewerPayments.length > 0;
   if (found.archivedAt && !isOwner && !hasPurchase) {
     throw new ORPCError("NOT_FOUND", { message: "Post not found." });
   }
 
-  return toPostView(found, userId);
+  if (!userId) {
+    const verifiedSolanaOwners = await loadVerifiedSolanaOwnerIds();
+    const isPublicListing =
+      !found.archivedAt &&
+      found.prices.some((postPrice) => postPrice.token === "Sol") &&
+      verifiedSolanaOwners.has(found.authorId);
+
+    if (!isPublicListing) {
+      throw new ORPCError("NOT_FOUND", { message: "Post not found." });
+    }
+  }
+
+  return toPostView({ ...found, payments: viewerPayments }, userId);
 }
 
 async function requirePost(postId: string) {
@@ -183,6 +200,25 @@ async function loadPostsForUser(userId: string): Promise<PostRecord[]> {
   });
 }
 
+async function loadPostsForViewer(userId?: string): Promise<PostRecord[]> {
+  if (userId) {
+    return loadPostsForUser(userId);
+  }
+
+  return db.query.post.findMany({
+    orderBy: [desc(post.createdAt)],
+    with: {
+      author: true,
+      payments: {
+        where: eq(payment.ownerId, "__public_viewer__"),
+      },
+      prices: {
+        orderBy: [price.token],
+      },
+    },
+  }).then((posts) => posts.map((item) => ({ ...item, payments: [] })));
+}
+
 async function loadVerifiedSolanaOwnerIds() {
   const verifiedIdentities = await db.query.identity.findMany({
     where: and(eq(identity.provider, "Solana"), eq(identity.verified, true)),
@@ -191,16 +227,16 @@ async function loadVerifiedSolanaOwnerIds() {
   return new Set(verifiedIdentities.map((item) => item.ownerId));
 }
 
-function mapPagedPosts(posts: PostRecord[], userId: string, input: PageInput) {
+function mapPagedPosts(posts: PostRecord[], userId: string | undefined, input: PageInput) {
   return paginate(
     posts.map((item) => toPostView(item, userId)),
     input,
   );
 }
 
-function toPostView(row: PostRecord, userId: string): PostView {
+function toPostView(row: PostRecord, userId: string | undefined): PostView {
   const paymentForViewer = row.payments[0] ?? null;
-  const isOwner = row.authorId === userId;
+  const isOwner = !!userId && row.authorId === userId;
   const author = row.author ? toPublicUser(row.author) : null;
 
   return {

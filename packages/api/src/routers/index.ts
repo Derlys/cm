@@ -88,8 +88,8 @@ export const appRouter = {
     }),
   },
   posts: {
-    byId: protectedProcedure.input(z.object({ postId: z.string().min(1) })).handler(({ context, input }) => {
-      return findPostById(context.session.user.id, input.postId);
+    byId: publicProcedure.input(z.object({ postId: z.string().min(1) })).handler(({ context, input }) => {
+      return findPostById(context.session?.user.id, input.postId);
     }),
     create: protectedProcedure
       .input(
@@ -107,10 +107,10 @@ export const appRouter = {
     listAuthored: protectedProcedure.input(pagingInput).handler(({ context, input }) => {
       return listAuthoredPosts(context.session.user.id, input);
     }),
-    listPublished: protectedProcedure
+    listPublished: publicProcedure
       .input(pagingInput.extend({ username: z.string().min(1).optional() }))
       .handler(({ context, input }) => {
-        return listPublishedPosts(context.session.user.id, input);
+        return listPublishedPosts(context.session?.user.id, input);
       }),
     listPurchased: protectedProcedure
       .input(pagingInput.extend({ username: z.string().min(1).optional() }))

@@ -26,7 +26,6 @@ export default function PostDetail({ postId, username }: { postId: string; usern
   const author = useQuery(orpc.users.byUsername.queryOptions({ input: { username } }));
   const post = useQuery(
     orpc.posts.byId.queryOptions({
-      enabled: !!session.data?.user,
       input: { postId },
     }),
   );
@@ -222,7 +221,7 @@ export default function PostDetail({ postId, username }: { postId: string; usern
               )}
             </article>
 
-            {!isUnlocked ? (
+            {!isUnlocked && session.data?.user ? (
               <aside className="cm-card h-fit p-5 lg:sticky lg:top-20">
                 <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Pago seguro" : "Secure payment"}</p>
                 <h2 className="mt-2 text-xl font-black tracking-normal">{locale === "es" ? "Comprar acceso con SOL" : "Buy access with SOL"}</h2>
@@ -283,6 +282,31 @@ export default function PostDetail({ postId, username }: { postId: string; usern
                   )}
 
                 </div>
+              </aside>
+            ) : null}
+
+            {!isUnlocked && !session.data?.user ? (
+              <aside className="cm-card h-fit p-5 lg:sticky lg:top-20">
+                <p className="font-mono text-xs uppercase text-[#ff9f1c]">{locale === "es" ? "Preview publica" : "Public preview"}</p>
+                <h2 className="mt-2 text-xl font-black tracking-normal">{locale === "es" ? "Desbloquea con SOL" : "Unlock with SOL"}</h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {locale === "es"
+                    ? "Inicia sesion para conectar tu wallet, comprar acceso y guardar esta publicacion en tu biblioteca."
+                    : "Sign in to connect your wallet, buy access, and save this listing to your library."}
+                </p>
+                <div className="mt-5 grid gap-3 rounded-md border border-white/10 bg-background/60 p-3 text-xs">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-muted-foreground">Price</span>
+                    <span className="font-mono text-foreground/80">{selectedPrice ? `${selectedPrice.amount} SOL` : "No SOL price"}</span>
+                  </div>
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-muted-foreground">Network</span>
+                    <span className="text-right font-mono text-foreground/80">{SOLANA_NETWORK_LABEL}</span>
+                  </div>
+                </div>
+                <Link className={buttonVariants({ className: "cm-responsive-action mt-5 w-full" })} href="/login">
+                  {locale === "es" ? "Iniciar sesion para comprar" : "Sign in to buy"}
+                </Link>
               </aside>
             ) : null}
           </div>
